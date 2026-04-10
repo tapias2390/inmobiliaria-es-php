@@ -6,7 +6,6 @@ toggle.addEventListener("click", () => {
   toggle.classList.toggle("active");
 });
 
-// Menu dots toggle (click on vertical 3 dots)
 const menuDots = document.querySelector(".menu-dots");
 if (menuDots) {
   const dotsToggle = menuDots.querySelector(".dots-toggle");
@@ -17,14 +16,12 @@ if (menuDots) {
   });
 }
 
-// Close menu dots when clicking outside
 document.addEventListener("click", (e) => {
   if (menuDots && !menuDots.contains(e.target)) {
     menuDots.classList.remove("active");
   }
 });
 
-// Acordeón para Servicios en responsive
 const dropdownLinks = document.querySelectorAll(".dropdown > a");
 dropdownLinks.forEach((link) => {
   link.addEventListener("click", (e) => {
@@ -33,4 +30,11 @@ dropdownLinks.forEach((link) => {
     link.classList.toggle("active");
     submenu.classList.toggle("active");
   });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const model = new PropertyModel(CONFIG);
+  const view = new PropertyView("properties-container");
+  const controller = new PropertyController(model, view);
+  controller.init();
 });
