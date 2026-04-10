@@ -21,7 +21,7 @@ function loadEnv($path)
 
 loadEnv(__DIR__ . '/../.env');
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 $apiBaseUrl = getenv('API_BASE_URL') ?: 'https://webapi.resales-online.com/V6';
 $apiKey = getenv('API_KEY');
@@ -45,8 +45,6 @@ $langMap = [
 ];
 $language = $langMap[$langCode] ?? '2';
 $sandbox = getenv('SANDBOX') ?: 'false';
-
-error_log("LANGUAGE from env: $langCode -> API lang: $language, SANDBOX: $sandbox");
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
@@ -95,7 +93,7 @@ foreach ($searchParams as $key => $apiParam) {
 }
 
 if (!empty($reference)) {
-    $params['p_reference'] = $reference;
+    $params['P_RefId'] = $reference;
 } else {
     $params['p_page'] = $page;
     $params['p_limit'] = $limit;

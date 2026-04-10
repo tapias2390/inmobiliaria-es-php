@@ -130,7 +130,7 @@ class PropertyModel {
 
   async fetchPropertyByReference(reference) {
     const params = new URLSearchParams({
-      reference: reference,
+      ref: reference,
     });
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;

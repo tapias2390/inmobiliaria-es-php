@@ -10,11 +10,11 @@ if (toggle && nav) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const reference = urlParams.get('ref');
-  const filter = urlParams.get('filter') || '1';
+  const reference = urlParams.get("ref");
+  const filter = urlParams.get("filter") || "1";
 
   if (!reference) {
-    window.location.href = 'index.html';
+    window.location.href = "index.html";
     return;
   }
 
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const property = await model.fetchPropertyByReference(reference);
     detailView.render(property);
   } catch (error) {
-    console.error('Error loading property:', error);
-    detailView.renderError('Error al cargar la propiedad');
+    console.error("Error loading property:", error);
+    detailView.renderError("Error al cargar la propiedad");
   }
 });
