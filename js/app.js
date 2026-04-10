@@ -35,6 +35,7 @@ dropdownLinks.forEach((link) => {
 document.addEventListener("DOMContentLoaded", () => {
   const model = new PropertyModel(CONFIG);
   const view = new PropertyView("properties-container");
-  const controller = new PropertyController(model, view);
+  const paginationView = new PaginationView("pagination-container");
+  const controller = new PropertyController(model, view, paginationView);
   controller.init();
 });

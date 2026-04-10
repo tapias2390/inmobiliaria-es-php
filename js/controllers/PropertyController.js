@@ -1,15 +1,28 @@
 class PropertyController {
-  constructor(model, view) {
+  constructor(model, view, paginationView) {
     this.model = model;
     this.view = view;
+    this.paginationView = paginationView;
     this.currentPage = 1;
-    this.propertiesPerPage = 12;
+    this.propertiesPerPage = 10;
     this.isLoading = false;
   }
 
   async init() {
     if (this.isLoading) return;
     this.isLoading = true;
+
+    if (this.paginationView) {
+      this.paginationView.bind((page) => this.goToPage(page));
+    }
+
+    await this.loadProperties();
+  }
+
+  async goToPage(page) {
+    if (this.isLoading) return;
+    if (!Number.isFinite(page) || page <= 0) return;
+    this.currentPage = page;
     await this.loadProperties();
   }
 
@@ -17,39 +30,23 @@ class PropertyController {
     this.view.renderLoading();
 
     try {
-      const properties = await this.model.fetchProperties(
+      this.isLoading = true;
+      const result = await this.model.fetchProperties(
         this.currentPage,
         this.propertiesPerPage,
       );
-      this.view.render(properties);
+
+      this.view.render(result.properties);
+      if (this.paginationView) {
+        this.paginationView.render(result.pagination);
+      }
     } catch (error) {
       this.view.renderError(error.message);
+      if (this.paginationView) {
+        this.paginationView.render({ totalPages: 0 });
+      }
     } finally {
       this.isLoading = false;
-    }
-  }
-
-  async loadMore() {
-    this.currentPage++;
-
-    try {
-      const newProperties = await this.model.fetchProperties(
-        this.currentPage,
-        this.propertiesPerPage,
-      );
-      this.appendProperties(newProperties);
-    } catch (error) {
-      console.error("Error loading more properties:", error);
-    }
-  }
-
-  appendProperties(properties) {
-    const grid = document.querySelector(".properties-grid");
-    if (grid) {
-      const html = properties
-        .map((p) => this.view.createPropertyCard(p))
-        .join("");
-      grid.insertAdjacentHTML("beforeend", html);
     }
   }
 }

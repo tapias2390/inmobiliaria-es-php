@@ -46,7 +46,26 @@ class PropertyModel {
     }
 
     const data = await response.json();
-    return this.transformProperties(data);
+    return {
+      properties: this.transformProperties(data),
+      pagination: this.transformPagination(data),
+    };
+  }
+
+  transformPagination(data) {
+    const queryInfo = data.QueryInfo || {};
+    const total = Number(queryInfo.PropertyCount || 0);
+    const perPage = Number(queryInfo.PropertiesPerPage || 0);
+    const currentPage = Number(queryInfo.CurrentPage || 1);
+
+    const totalPages = perPage > 0 ? Math.ceil(total / perPage) : 1;
+
+    return {
+      total,
+      perPage,
+      currentPage,
+      totalPages,
+    };
   }
 
   transformProperties(data) {
