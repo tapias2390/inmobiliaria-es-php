@@ -31,10 +31,11 @@ class PropertyModel {
     };
   }
 
-  async fetchProperties(page = 1, limit = 10) {
+  async fetchProperties(page = 1, limit = 10, filter = 1) {
     const params = new URLSearchParams({
       page: page,
       limit: limit,
+      filter: filter,
     });
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
@@ -125,5 +126,23 @@ class PropertyModel {
 
   translateType(type) {
     return this.translations.propertyType[type] || type;
+  }
+
+  async fetchPropertyByReference(reference) {
+    const params = new URLSearchParams({
+      reference: reference,
+    });
+
+    const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const properties = this.transformProperties(data);
+    return properties.length > 0 ? properties[0] : null;
   }
 }

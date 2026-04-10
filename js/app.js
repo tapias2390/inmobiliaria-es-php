@@ -35,7 +35,11 @@ dropdownLinks.forEach((link) => {
 document.addEventListener("DOMContentLoaded", () => {
   const model = new PropertyModel(CONFIG);
   const view = new PropertyView("properties-container");
-  const paginationView = new PaginationView("pagination-container");
-  const controller = new PropertyController(model, view, paginationView);
+  const filterView = new FilterView("filter-container");
+  const controller = new PropertyController(model, view);
+
+  filterView.render();
+  filterView.bind((filterId) => controller.setFilter(filterId));
+
   controller.init();
 });

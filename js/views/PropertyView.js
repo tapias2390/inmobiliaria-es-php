@@ -50,27 +50,30 @@ class PropertyView {
 
   createPropertyCard(property) {
     const imageUrl = property.mainImage || this.defaultImage;
-    const title = `${property.type} ${property.location ? "– " + property.location : ""}`;
+    const title = `${property.type} ${property.location ? " - " + property.location : ""}`;
     const currencySymbol =
-      property.currency === "EUR" ? "€" : property.currency || "";
+      property.currency === "EUR" ? "£" : property.currency || "";
+    const detailUrl = `property.html?ref=${property.reference}&filter=${this.getCurrentFilter()}`;
 
     return `
             <div class="trx_addons_column-1_3">
                 <div class="sc_properties_item with_image with_content">
                     <div class="post_featured with_thumb hover_icon sc_properties_item_thumb">
-                        <img loading="lazy" decoding="async" width="370" height="208" 
-                            src="${imageUrl}" 
-                            class="attachment-good_homes-thumb-med size-good_homes-thumb-med wp-post-image" 
-                            alt="${title}"
-                            onerror="this.src='${this.defaultImage}'">
+                        <a href="${detailUrl}">
+                            <img loading="lazy" decoding="async" width="370" height="208" 
+                                src="${imageUrl}" 
+                                class="attachment-good_homes-thumb-med size-good_homes-thumb-med wp-post-image" 
+                                alt="${title}"
+                                onerror="this.src='${this.defaultImage}'">
+                        </a>
                         <div class="mask"></div>
                         <div class="icons">
-                            <a href="#" aria-hidden="true" class="icon-eye-1"></a>
+                            <a href="${detailUrl}" aria-hidden="true" class="icon-eye-1"></a>
                         </div>
                     </div>
                     <div class="sc_properties_item_info">
                         <h5 class="sc_properties_item_title">
-                            <a href="#">${title}</a>
+                            <a href="${detailUrl}">${title}</a>
                         </h5>
                         <div class="sc_properties_item_header">
                             <div class="sc_properties_item_row sc_properties_item_row_address">
@@ -106,15 +109,15 @@ class PropertyView {
                             </div>
                             <div class="sc_properties_item_footer">
                                 <div class="sc_properties_item_button sc_item_button">
-                                    <a href="#" class="sc_button sc_button_with_icon">VER PROPIEDAD <span class="sc_button__arrow">→</span></a>
+                                    <a href="${detailUrl}" class="sc_button sc_button_with_icon">VER PROPIEDAD <span class="sc_button__arrow">-></span></a>
                                 </div>
                                 <div class="sc_properties_item_meta">
                                     <div class="sc_properties_item_status">
                                         <span class="sc_properties_item_status_text">${property.status}</span>
                                     </div>
                                     <div class="sc_properties_item_actions">
-                                        <button type="button" class="sc_properties_action sc_properties_action_fav" title="Favorito">❤</button>
-                                        <button type="button" class="sc_properties_action sc_properties_action_compare" title="Comparar">⚖</button>
+                                        <button type="button" class="sc_properties_action sc_properties_action_fav" title="Favorito">?</button>
+                                        <button type="button" class="sc_properties_action sc_properties_action_compare" title="Comparar">?</button>
                                     </div>
                                 </div>
                             </div>
@@ -123,6 +126,11 @@ class PropertyView {
                 </div>
             </div>
         `;
+  }
+
+  getCurrentFilter() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("filter") || "1";
   }
 
   createDetailItem(icon, value, label) {

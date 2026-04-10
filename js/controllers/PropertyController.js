@@ -1,10 +1,8 @@
 class PropertyController {
-  constructor(model, view, paginationView) {
+  constructor(model, view) {
     this.model = model;
     this.view = view;
-    this.paginationView = paginationView;
-    this.currentPage = 1;
-    this.propertiesPerPage = 10;
+    this.currentFilter = 1;
     this.isLoading = false;
   }
 
@@ -12,17 +10,12 @@ class PropertyController {
     if (this.isLoading) return;
     this.isLoading = true;
 
-    if (this.paginationView) {
-      this.paginationView.bind((page) => this.goToPage(page));
-    }
-
     await this.loadProperties();
   }
 
-  async goToPage(page) {
+  async setFilter(filterId) {
     if (this.isLoading) return;
-    if (!Number.isFinite(page) || page <= 0) return;
-    this.currentPage = page;
+    this.currentFilter = filterId;
     await this.loadProperties();
   }
 
@@ -32,19 +25,14 @@ class PropertyController {
     try {
       this.isLoading = true;
       const result = await this.model.fetchProperties(
-        this.currentPage,
-        this.propertiesPerPage,
+        1,
+        10,
+        this.currentFilter,
       );
 
       this.view.render(result.properties);
-      if (this.paginationView) {
-        this.paginationView.render(result.pagination);
-      }
     } catch (error) {
       this.view.renderError(error.message);
-      if (this.paginationView) {
-        this.paginationView.render({ totalPages: 0 });
-      }
     } finally {
       this.isLoading = false;
     }
