@@ -1,6 +1,34 @@
 class PropertyModel {
   constructor(config) {
     this.config = config;
+    this.translations = {
+      status: {
+        Available: "Disponible",
+        "Under Offer": "En oferta",
+        "Sale Agreed": "Venta acordada",
+        Sold: "Vendido",
+        "With Reservation": "Con reserva",
+      },
+      propertyType: {
+        Garage: "Garaje",
+        "Parking Space": "Plaza de parking",
+        "Storage Room": "Trastero",
+        Apartment: "Apartamento",
+        Villa: "Villa",
+        House: "Casa",
+        Penthouse: "Ático",
+        Studio: "Estudio",
+        Townhouse: "Casa adosada",
+        Bungalow: "Bungalow",
+        Finca: "Finca",
+        Plot: "Parcela",
+        Commercial: "Comercial",
+        Office: "Oficina",
+        Restaurant: "Restaurante",
+        Shop: "Tienda",
+        Hotel: "Hotel",
+      },
+    };
   }
 
   async fetchProperties(page = 1, limit = 10) {
@@ -30,8 +58,8 @@ class PropertyModel {
       subLocation: property.SubLocation || "",
       area: property.Area,
       province: property.Province,
-      type: property.PropertyType?.NameType || "N/A",
-      status: property.Status?.system || "N/A",
+      type: this.translateType(property.PropertyType?.NameType || "N/A"),
+      status: this.translateStatus(property.Status?.system || "N/A"),
       bedrooms: property.Bedrooms || 0,
       bathrooms: property.Bathrooms || 0,
       price: parseFloat(property.Price) || 0,
@@ -70,5 +98,13 @@ class PropertyModel {
       features[cat.Type] = cat.Value;
     });
     return features;
+  }
+
+  translateStatus(status) {
+    return this.translations.status[status] || status;
+  }
+
+  translateType(type) {
+    return this.translations.propertyType[type] || type;
   }
 }

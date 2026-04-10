@@ -583,7 +583,7 @@ body {
   }
 }
 
-/* Properties Section */
+/* Properties Section - Theme wbrealtygroup */
 .properties-section {
   padding: 40px 0;
 }
@@ -594,120 +594,281 @@ body {
   font-size: 28px;
 }
 
-.properties-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+.trx_addons_columns_wrap {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -15px;
 }
 
-.property-card {
+.trx_addons_column-1_3 {
+  width: 33.3333%;
+  padding: 0 15px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 992px) {
+  .trx_addons_column-1_3 {
+    width: 50%;
+  }
+}
+
+@media (max-width: 576px) {
+  .trx_addons_column-1_3 {
+    width: 100%;
+  }
+}
+
+.sc_properties_item {
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
-.property-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+.sc_properties_item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.property-card__image {
+.post_featured {
   position: relative;
-  height: 200px;
   overflow: hidden;
 }
 
-.property-card__image img {
+.post_featured img {
   width: 100%;
-  height: 100%;
+  height: 208px;
   object-fit: cover;
+  display: block;
 }
 
-.property-card__status {
+.post_featured .mask {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.property-card__status--available {
-  background: #22c55e;
-  color: #fff;
+.sc_properties_item:hover .mask {
+  opacity: 1;
 }
 
-.property-card__status--under-offer {
-  background: #f59e0b;
-  color: #fff;
-}
-
-.property-card__status--sale-agreed {
-  background: #ef4444;
-  color: #fff;
-}
-
-.property-card__content {
-  padding: 16px;
-}
-
-.property-card__header {
+.post_featured .icons {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.sc_properties_item:hover .icons {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.post_featured .icons a {
+  width: 36px;
+  height: 36px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sc_properties_item_info {
+  padding: 20px;
+}
+
+.sc_properties_item_header {
+  margin-bottom: 15px;
+}
+
+.sc_properties_item_row {
   margin-bottom: 8px;
 }
 
-.property-card__type {
-  font-size: 12px;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.property-card__location {
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
-}
-
-.property-card__price {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 12px;
-}
-
-.property-card__details {
+.sc_properties_item_option {
   display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
   color: #666;
+}
+
+.sc_properties_item_option_label_icon {
+  color: #999;
   font-size: 14px;
 }
 
-.property-card__detail-value {
+.sc_properties_item_option_data {
+  color: #333;
+}
+
+.sc_properties_item_type {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-top: 6px;
+}
+
+.sc_properties_item_price {
+  font-size: 34px;
+  font-weight: 800;
+  color: #ff3b30;
+  margin: 14px 0 18px;
+}
+
+.properties_price_label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ff3b30;
+  margin-right: 4px;
+}
+
+.sc_properties_item_options {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.sc_properties_item_row_info {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.sc_properties_item_option_label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc_properties_item_option_label_text {
+  font-size: 14px;
+  color: #111827;
+  margin-right: 4px;
+}
+
+.sc_properties_item_option_data {
   font-weight: 600;
   color: #333;
 }
 
-.property-card__ref {
-  font-size: 12px;
-  color: #999;
+.sc_properties_item_button {
+  margin-bottom: 15px;
 }
 
-.properties-loading,
-.properties-empty,
-.properties-error {
-  text-align: center;
-  padding: 60px 20px;
+.sc_button {
+  display: inline-block;
+  padding: 12px 20px;
+  background: #1a1a1a;
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 0px;
+  transition: background 0.3s ease;
+}
+
+.sc_button_with_icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sc_button__arrow {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.sc_button:hover {
+  background: #333;
+}
+
+.sc_properties_item_status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.sc_properties_item_meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.sc_properties_item_actions {
+  display: flex;
+  gap: 10px;
+}
+
+.sc_properties_action {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sc_properties_action_fav {
+  background: #ff4d4d;
+  color: #fff;
+}
+
+.sc_properties_action_compare {
+  background: #111827;
+  color: #fff;
+}
+
+.sc_properties_item_title {
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.sc_properties_item_title a {
+  color: #333;
+  text-decoration: none;
+}
+
+.sc_properties_item_title a:hover {
   color: #666;
+}
+
+.trx_addons_message_box {
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.trx_addons_message_box_info {
+  background: #f0f9ff;
+  color: #0066cc;
+}
+
+.trx_addons_message_box_error {
+  background: #fef2f2;
+  color: #dc2626;
 }
 
 .loader {

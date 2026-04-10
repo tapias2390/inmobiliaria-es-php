@@ -1,100 +1,151 @@
 class PropertyView {
-    constructor(containerId) {
-        this.container = document.getElementById(containerId);
+  constructor(containerId) {
+    this.container = document.getElementById(containerId);
+    this.defaultImage = "img/property-placeholder.svg";
+  }
+
+  render(properties) {
+    if (!this.container) return;
+
+    if (properties.length === 0) {
+      this.renderEmpty();
+      return;
     }
 
-    render(properties) {
-        if (!this.container) return;
-        
-        if (properties.length === 0) {
-            this.renderEmpty();
-            return;
-        }
+    this.container.innerHTML = this.createPropertyGrid(properties);
+  }
 
-        this.container.innerHTML = this.createPropertyGrid(properties);
-    }
-
-    renderEmpty() {
-        this.container.innerHTML = `
-            <div class="properties-empty">
-                <p>No se encontraron propiedades.</p>
+  renderEmpty() {
+    this.container.innerHTML = `
+            <div class="trx_addons_message_box trx_addons_message_box_error">
+                No se encontraron propiedades.
             </div>
         `;
-    }
+  }
 
-    renderLoading() {
-        this.container.innerHTML = `
-            <div class="properties-loading">
+  renderLoading() {
+    this.container.innerHTML = `
+            <div class="trx_addons_message_box trx_addons_message_box_info">
                 <div class="loader"></div>
                 <p>Cargando propiedades...</p>
             </div>
         `;
-    }
+  }
 
-    renderError(message) {
-        this.container.innerHTML = `
-            <div class="properties-error">
-                <p>Error: ${message}</p>
+  renderError(message) {
+    this.container.innerHTML = `
+            <div class="trx_addons_message_box trx_addons_message_box_error">
+                Error: ${message}
             </div>
         `;
-    }
+  }
 
-    createPropertyGrid(properties) {
-        return `
-            <div class="properties-grid">
-                ${properties.map(p => this.createPropertyCard(p)).join('')}
+  createPropertyGrid(properties) {
+    return `
+            <div class="sc_properties_columns trx_addons_columns_wrap">
+                ${properties.map((p) => this.createPropertyCard(p)).join("")}
             </div>
         `;
-    }
+  }
 
-    createPropertyCard(property) {
-        const imageUrl = property.mainImage || this.getPlaceholderImage();
-        const priceFormatted = this.formatPrice(property.price, property.currency);
-        
-        return `
-            <article class="property-card">
-                <div class="property-card__image">
-                    <img src="${imageUrl}" alt="${property.type} en ${property.location}" loading="lazy">
-                    <span class="property-card__status property-card__status--${property.status.toLowerCase()}">
-                        ${property.status}
-                    </span>
-                </div>
-                <div class="property-card__content">
-                    <div class="property-card__header">
-                        <span class="property-card__type">${property.type}</span>
-                        <span class="property-card__location">${property.location}</span>
+  createPropertyCard(property) {
+    const imageUrl = property.mainImage || this.defaultImage;
+    const title = `${property.type} ${property.location ? "– " + property.location : ""}`;
+    const currencySymbol =
+      property.currency === "EUR" ? "€" : property.currency || "";
+
+    return `
+            <div class="trx_addons_column-1_3">
+                <div class="sc_properties_item with_image with_content">
+                    <div class="post_featured with_thumb hover_icon sc_properties_item_thumb">
+                        <img loading="lazy" decoding="async" width="370" height="208" 
+                            src="${imageUrl}" 
+                            class="attachment-good_homes-thumb-med size-good_homes-thumb-med wp-post-image" 
+                            alt="${title}"
+                            onerror="this.src='${this.defaultImage}'">
+                        <div class="mask"></div>
+                        <div class="icons">
+                            <a href="#" aria-hidden="true" class="icon-eye-1"></a>
+                        </div>
                     </div>
-                    <h3 class="property-card__price">${priceFormatted}</h3>
-                    <div class="property-card__details">
-                        ${this.createDetailItem('bed', property.bedrooms, 'hab')}
-                        ${this.createDetailItem('bath', property.bathrooms, 'bañ')}
-                        ${this.createDetailItem('ruler', property.built, 'm²')}
+                    <div class="sc_properties_item_info">
+                        <div class="sc_properties_item_header">
+                            <div class="sc_properties_item_row sc_properties_item_row_address">
+                                <span class="sc_properties_item_option sc_properties_item_address" title="Address">
+                                    <span class="sc_properties_item_option_label">
+                                        <span class="sc_properties_item_option_label_icon trx_addons_icon-home"></span>
+                                    </span>
+                                    <span class="sc_properties_item_option_data">
+                                        <span class="properties_address">
+                                            <span class="properties_address_item">${title}</span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="sc_properties_item_type">
+                                <span>${property.type}</span>
+                                <span class="sc_properties_item_option_data"></span>
+                            </div>
+                        </div>
+                        <div class="sc_properties_item_price">
+                            <span class="properties_price">
+                                <span class="properties_price_label properties_price_before">${currencySymbol}</span>
+                                <span class="properties_price_data properties_price1">${this.formatPriceNumber(property.price)}</span>
+                            </span>
+                        </div>
+                        <div class="sc_properties_item_options">
+                            <div class="sc_properties_item_row sc_properties_item_row_info"></div>
+                            <div class="sc_properties_item_row sc_properties_item_row_info">
+                                ${this.createDetailItem("bedrooms", property.bedrooms, "Camas:", "trx_addons_icon-bed")}
+                                ${this.createDetailItem("bathrooms", property.bathrooms, "Baños:", "trx_addons_icon-water")}
+                                ${this.createDetailItem("garages", property.parking, "Estacionamiento:", "trx_addons_icon-car")}
+                            </div>
+                            <div class="sc_properties_item_button sc_item_button">
+                                <a href="#" class="sc_button sc_button_with_icon">VER PROPIEDAD <span class="sc_button__arrow">→</span></a>
+                            </div>
+                            <div class="sc_properties_item_meta">
+                                <div class="sc_properties_item_status">
+                                    <span class="sc_properties_item_status_text">${property.status}</span>
+                                    <span class="icon_status"></span>
+                                </div>
+                                <div class="sc_properties_item_actions">
+                                    <button type="button" class="sc_properties_action sc_properties_action_fav" title="Favorito">⌂</button>
+                                    <button type="button" class="sc_properties_action sc_properties_action_compare" title="Comparar">⚖</button>
+                                </div>
+                            </div>
+                        </div>
+                        <h5 class="sc_properties_item_title">
+                            <a href="#">${title}</a>
+                        </h5>
                     </div>
-                    <p class="property-card__ref">Ref: ${property.reference}</p>
                 </div>
-            </article>
+            </div>
         `;
-    }
+  }
 
-    createDetailItem(icon, value, suffix) {
-        if (!value || value === 0) return '';
-        return `
-            <span class="property-card__detail">
-                <span class="property-card__detail-value">${value}</span> ${suffix}
+  createDetailItem(icon, value, label, iconClass) {
+    if (!value || value === 0) return "";
+    return `
+            <span class="sc_properties_item_option sc_properties_item_${icon}" title="${label}">
+                <span class="sc_properties_item_option_label">
+                    <span class="sc_properties_item_option_label_icon ${iconClass}"></span>
+                    <span class="sc_properties_item_option_label_text">${label}</span>
+                </span>
+                <span class="sc_properties_item_option_data">${value}</span>
             </span>
         `;
-    }
+  }
 
-    formatPrice(price, currency) {
-        return new Intl.NumberFormat('es-ES', {
-            style: 'currency',
-            currency: currency,
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(price);
-    }
+  formatPrice(price, currency) {
+    return new Intl.NumberFormat("es-ES", {
+      style: "currency",
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  }
 
-    getPlaceholderImage() {
-        return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="20" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ESin imagen%3C/text%3E%3C/svg%3E';
-    }
+  formatPriceNumber(price) {
+    return new Intl.NumberFormat("es-ES").format(price);
+  }
 }
