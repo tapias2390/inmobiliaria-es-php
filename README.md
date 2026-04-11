@@ -41,6 +41,14 @@ SANDBOX=false
 - **Endpoint:** `https://webapi.resales-online.com/V6/`
 - **Documentación:** https://webapi.resales-online.com/
 
+## Conceptos clave (Web API V6)
+
+- **Paginación obligatoria**: aunque `QueryInfo.PropertyCount` indique miles de resultados, la API devuelve una página de resultados (por defecto 10) y debes pedir el resto con `p_page` y `p_limit`.
+- **`P_sandbox`**:
+  - `true` es un entorno de pruebas con datos limitados o vacíos.
+  - `false` es producción.
+- **Formato de salida**: JSON por defecto. Se puede cambiar con `p_output=JSON` o `p_output=XML` (o desde la configuración del filtro en Resales Online).
+
 ## Filtros de Propiedades (Predefined Filters)
 
 Los filtros vienen configurados en la API de Resales Online. Cada API Key tiene 4 filtros por defecto:
@@ -87,7 +95,7 @@ GET https://webapi.resales-online.com/V6/SearchProperties
 Obtiene el detalle de una propiedad por referencia:
 
 ```
-GET https://webapi.resales-online.com/V6/PropertyDetails?p_reference=R1234567
+GET https://webapi.resales-online.com/V6/PropertyDetails?P_RefId=R1234567
 ```
 
 ### RegisterLead
@@ -119,7 +127,26 @@ GET https://webapi.resales-online.com/V6/SearchLocations?P_All=true
 | `p_lang`            | Idioma (1=EN, 2=ES, 3=DE, 4=FR, 5=NL, 6=DA, 7=RU, 8=SV, 9=PL, 10=NO, 11=TR, 13=FI, 14=HU) | 2           |
 | `p_page`            | Número de página                                                                          | 1           |
 | `p_limit`           | Resultados por página (máx 40)                                                            | 10          |
-| `p_reference`       | Referencia de propiedad                                                                   | R5104846    |
+| `P_RefId`           | Referencia(s) de propiedad (1 o varias, csv)                                              | R5104846    |
+
+### Paginación (muy importante)
+
+- Para la **página 1**:
+
+```bash
+https://webapi.resales-online.com/V6/SearchProperties?...&p_page=1&p_limit=40
+```
+
+- Para la **página 2**:
+
+```bash
+https://webapi.resales-online.com/V6/SearchProperties?...&p_page=2&p_limit=40
+```
+
+- Cómo saber si faltan propiedades:
+  - `QueryInfo.PropertyCount` = total
+  - `QueryInfo.PropertiesPerPage` = por página
+  - `QueryInfo.CurrentPage` = página actual
 
 ### Parámetros de búsqueda
 
@@ -154,7 +181,7 @@ GET https://webapi.resales-online.com/V6/SearchLocations?P_All=true
 | Parámetro | Descripción                            | Valor por defecto |
 | --------- | -------------------------------------- | ----------------- |
 | page      | Número de página                       | 1                 |
-| limit     | Propiedades por página                 | 10                |
+| limit     | Propiedades por página                 | 20                |
 | filter    | ID del filtro de propiedades           | 1                 |
 | ref       | Referencia de propiedad (para detalle) | -                 |
 
@@ -176,8 +203,8 @@ inmobiliaria/
     views/
       PropertyView.js           - Vista del listado
       PropertyDetailView.js     - Vista del detalle
-      PaginationView.js         - Vista de paginación
       FilterView.js             - Vista de filtros
+      PropertyTypeFilterView.js - Vista de filtro por tipo de propiedad
     controllers/
       PropertyController.js     - Controlador de la lógica
   img/

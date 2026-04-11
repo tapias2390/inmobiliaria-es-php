@@ -47,9 +47,68 @@ $language = $langMap[$langCode] ?? '2';
 $sandbox = getenv('SANDBOX') ?: 'false';
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
 $filterId = isset($_GET['filter']) ? (int)$_GET['filter'] : 1;
 $reference = isset($_GET['ref']) ? $_GET['ref'] : '';
+
+// Manejar RegisterLead
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'registerLead') {
+    $leadParams = [
+        'p_agency_filterid' => $filterId,
+        'p1' => $agencyId,
+        'p2' => $apiKey,
+        'P_sandbox' => $sandbox,
+        'P_Lang' => $language,
+        'M1' => isset($_POST['name']) ? htmlspecialchars(trim($_POST['name'])) : '',
+        'M2' => isset($_POST['surname']) ? htmlspecialchars(trim($_POST['surname'])) : '',
+        'M5' => isset($_POST['email']) ? filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL) : '',
+        'M6' => 'Lead desde WB Realty',
+        'M7' => isset($_POST['message']) ? htmlspecialchars(trim($_POST['message'])) : '',
+        'RsId' => isset($_POST['ref']) ? htmlspecialchars(trim($_POST['ref'])) : '',
+    ];
+
+    if (!empty($_POST['phone'])) {
+        $leadParams['M3'] = htmlspecialchars(trim($_POST['phone']));
+    }
+
+    // Validar campos obligatorios
+    if (empty($leadParams['M1']) || empty($leadParams['M2']) || empty($leadParams['M5']) || empty($leadParams['M7'])) {
+        echo json_encode(['success' => false, 'message' => 'Por favor, completa todos los campos obligatorios.']);
+        exit;
+    }
+
+    if (!filter_var($leadParams['M5'], FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['success' => false, 'message' => 'Por favor, ingresa un email válido.']);
+        exit;
+    }
+
+    $leadUrl = "$apiBaseUrl/RegisterLead?" . http_build_query($leadParams);
+
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $leadUrl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYPEER => true
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($error) {
+        echo json_encode(['success' => false, 'message' => 'Error de conexión. Inténtalo de nuevo.']);
+        exit;
+    }
+
+    if (strpos($response, 'successfully') !== false) {
+        echo json_encode(['success' => true, 'message' => '¡Mensaje enviado correctamente!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error al enviar el mensaje. Inténtalo de nuevo.']);
+    }
+    exit;
+}
 
 $params = [
     'p_agency_filterid' => $filterId,

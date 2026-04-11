@@ -2,10 +2,17 @@ class PropertyView {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
     this.defaultImage = "img/property-placeholder.svg";
+    this.currentProperties = [];
+  }
+
+  getCurrentProperties() {
+    return this.currentProperties;
   }
 
   render(properties) {
     if (!this.container) return;
+
+    this.currentProperties = properties;
 
     if (properties.length === 0) {
       this.renderEmpty();
@@ -13,6 +20,55 @@ class PropertyView {
     }
 
     this.container.innerHTML = this.createPropertyGrid(properties);
+  }
+
+  appendProperties(newProperties) {
+    if (!this.container || newProperties.length === 0) return;
+
+    this.currentProperties = [...this.currentProperties, ...newProperties];
+
+    const grid = this.container.querySelector(".sc_properties_columns");
+    if (grid) {
+      grid.innerHTML += newProperties
+        .map((p) => this.createPropertyCard(p))
+        .join("");
+    }
+  }
+
+  renderLoadMore(hasMore) {
+    let loadMoreBtn = document.getElementById("load-more-btn");
+
+    if (!hasMore) {
+      if (loadMoreBtn) loadMoreBtn.remove();
+      return;
+    }
+
+    if (!loadMoreBtn) {
+      loadMoreBtn = document.createElement("div");
+      loadMoreBtn.id = "load-more-btn";
+      loadMoreBtn.style.textAlign = "center";
+      loadMoreBtn.style.marginTop = "20px";
+      this.container.appendChild(loadMoreBtn);
+    }
+
+    loadMoreBtn.innerHTML = `
+      <button class="load-more-button" style="
+        padding: 12px 30px;
+        font-size: 14px;
+        background: #1a1a1a;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      ">Cargar más propiedades</button>
+    `;
+  }
+
+  bindLoadMore(onLoadMore) {
+    const btn = document.getElementById("load-more-btn");
+    if (btn) {
+      btn.onclick = onLoadMore;
+    }
   }
 
   renderEmpty() {

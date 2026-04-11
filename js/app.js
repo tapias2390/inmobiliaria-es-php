@@ -36,10 +36,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const model = new PropertyModel(CONFIG);
   const view = new PropertyView("properties-container");
   const filterView = new FilterView("filter-container");
+  const propertyTypeFilterView = new PropertyTypeFilterView(
+    "property-type-filter",
+  );
   const controller = new PropertyController(model, view);
 
   filterView.render();
   filterView.bind((filterId) => controller.setFilter(filterId));
+
+  propertyTypeFilterView.render();
+  propertyTypeFilterView.bind((type) => controller.setPropertyType(type));
 
   controller.init();
 });

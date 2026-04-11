@@ -31,12 +31,20 @@ class PropertyModel {
     };
   }
 
-  async fetchProperties(page = 1, limit = 10, filter = 1) {
+  async fetchProperties(page = 1, limit = 10, filter = 1, propertyType = "") {
     const params = new URLSearchParams({
       page: page,
       limit: limit,
       filter: filter,
     });
+    if (propertyType) {
+      params.append("propertyTypes", propertyType);
+    }
+
+    console.log(
+      "API URL:",
+      `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`,
+    );
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
 
@@ -47,6 +55,7 @@ class PropertyModel {
     }
 
     const data = await response.json();
+    console.log("API Response for filter:", data.QueryInfo);
     return {
       properties: this.transformProperties(data),
       pagination: this.transformPagination(data),
@@ -142,6 +151,7 @@ class PropertyModel {
     }
 
     const data = await response.json();
+    console.log("API Response:", data);
     const properties = this.transformProperties(data);
     return properties.length > 0 ? properties[0] : null;
   }
