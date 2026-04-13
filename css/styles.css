@@ -1497,14 +1497,33 @@ body {
   font-weight: 500;
 }
 
-.features-filters__select {
-  min-height: 48px;
-  max-height: 72px;
+.features-filters__input {
+  padding: 6px 10px;
+  font-size: 11px;
+  line-height: 1.1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.features-filters__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
   padding: 4px;
   border: 1px solid #ddd;
   border-radius: 4px;
   background: #fff;
+}
+
+.features-filters__tag {
+  padding: 4px 8px;
   font-size: 11px;
+  line-height: 1.1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
 }
 
 .features-filters__actions {
