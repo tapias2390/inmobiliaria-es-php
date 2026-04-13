@@ -3,6 +3,7 @@ class PropertyView {
     this.container = document.getElementById(containerId);
     this.defaultImage = "img/property-placeholder.svg";
     this.currentProperties = [];
+    this.currentFilter = "1";
   }
 
   getCurrentProperties() {
@@ -86,7 +87,11 @@ class PropertyView {
     const title = `${property.type} ${property.location ? " - " + property.location : ""}`;
     const currencySymbol =
       property.currency === "EUR" ? "£" : property.currency || "";
-    const detailUrl = `property.html?ref=${property.reference}&filter=${this.getCurrentFilter()}`;
+    const detailUrl = `property.php?ref=${property.reference}&filter=${this.getCurrentFilter()}`;
+    const zone =
+      property.subLocation || property.location || property.area || "";
+    const totalSize =
+      Number(property.built || 0) + Number(property.terrace || 0);
 
     return `
             <div class="trx_addons_column-1_3">
@@ -136,9 +141,9 @@ class PropertyView {
                         <div class="sc_properties_item_options">
                             <div class="sc_properties_item_row sc_properties_item_row_info"></div>
                             <div class="sc_properties_item_row sc_properties_item_row_info">
-                                ${this.createDetailItem("bedrooms", property.bedrooms, "Camas:")}
-                                ${this.createDetailItem("bathrooms", property.bathrooms, "Baños:")}
-                                ${this.createDetailItem("garages", property.parking, "Estacionamiento:")}
+                                ${this.createDetailItem("province", property.province, "Provincia:")}
+                                ${this.createDetailItem("zone", zone, "Zona:")}
+                                ${this.createDetailItem("size", totalSize, "Tamaño (m²):", "m²")}
                             </div>
                             <div class="sc_properties_item_footer">
                                 <div class="sc_properties_item_button sc_item_button">
@@ -148,10 +153,7 @@ class PropertyView {
                                     <div class="sc_properties_item_status">
                                         <span class="sc_properties_item_status_text">${property.status}</span>
                                     </div>
-                                    <div class="sc_properties_item_actions">
-                                        <button type="button" class="sc_properties_action sc_properties_action_fav" title="Favorito">?</button>
-                                        <button type="button" class="sc_properties_action sc_properties_action_compare" title="Comparar">?</button>
-                                    </div>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -162,16 +164,20 @@ class PropertyView {
   }
 
   getCurrentFilter() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("filter") || "1";
+    return String(this.currentFilter || "1");
   }
 
-  createDetailItem(icon, value, label) {
+  setCurrentFilter(filterId) {
+    this.currentFilter = String(filterId ?? "1");
+  }
+
+  createDetailItem(icon, value, label, suffix = "") {
     if (!value || value === 0) return "";
+    const valueText = suffix ? `${value} ${suffix}` : value;
     return `
             <span class="sc_properties_item_option sc_properties_item_${icon}" title="${label}">
                 <span class="sc_properties_item_option_label_text">${label}</span>
-                <span class="sc_properties_item_option_data">${value}</span>
+                <span class="sc_properties_item_option_data">${valueText}</span>
             </span>
         `;
   }

@@ -2,7 +2,6 @@ class PropertyTypeFilterView {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
     this.propertyTypes = [
-      { id: "", label: "Todos los tipos" },
       { id: "Apartment", label: "Apartamento" },
       { id: "Villa", label: "Villa" },
       { id: "House", label: "Casa" },
@@ -25,7 +24,7 @@ class PropertyTypeFilterView {
 
   setTypes(types) {
     if (!Array.isArray(types) || types.length === 0) return;
-    this.propertyTypes = types;
+    this.propertyTypes = types.filter((t) => String(t?.id || "") !== "");
   }
 
   render() {

@@ -57,6 +57,8 @@ class PropertyModel {
       "baths",
       "minPrice",
       "maxPrice",
+      "builtMin",
+      "builtMax",
       "location",
       "province",
       "sortType",
@@ -88,6 +90,14 @@ class PropertyModel {
       "API URL:",
       `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`,
     );
+
+    // Debug: verificar filtros de m²
+    if (extraFilters?.builtMin || extraFilters?.builtMax) {
+      console.log("[DEBUG] Filtros m²:", {
+        builtMin: extraFilters.builtMin,
+        builtMax: extraFilters.builtMax,
+      });
+    }
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
 
@@ -122,7 +132,7 @@ class PropertyModel {
     };
   }
 
-  transformPagination(data, limit = 40, userPage = 1) {
+  transformPagination(data, limit = 30, userPage = 1) {
     const queryInfo = data.QueryInfo || {};
     const total = Number(queryInfo.PropertyCount || 0);
 
@@ -144,6 +154,20 @@ class PropertyModel {
   transformProperties(data) {
     const properties = data.Property || [];
 
+    // Debug: mostrar primera propiedad cruda
+    if (properties.length > 0) {
+      console.log("[DEBUG] Primera propiedad cruda:", {
+        Reference: properties[0].Reference,
+        Price: properties[0].Price,
+        OriginalPrice: properties[0].OriginalPrice,
+        Built: properties[0].Built,
+        Terrace: properties[0].Terrace,
+        Bedrooms: properties[0].Bedrooms,
+        Bathrooms: properties[0].Bathrooms,
+        Parking: properties[0].Parking,
+      });
+    }
+
     return properties.map((property) => ({
       reference: property.Reference,
       location: property.Location,
@@ -159,6 +183,7 @@ class PropertyModel {
       originalPrice: property.OriginalPrice || property.Price,
       built: property.Built || 0,
       terrace: property.Terrace || 0,
+      gardenPlot: property.GardenPlot || 0,
       pool: property.Pool || 0,
       parking: property.Parking || 0,
       garden: property.Garden || 0,
@@ -200,9 +225,10 @@ class PropertyModel {
     return this.translations.propertyType[type] || type;
   }
 
-  async fetchPropertyByReference(reference) {
+  async fetchPropertyByReference(reference, filter = "1") {
     const params = new URLSearchParams({
       ref: reference,
+      filter: String(filter || "1"),
     });
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
@@ -268,14 +294,17 @@ class PropertyModel {
   }
 
   async fetchPropertyTypes(filter = 1) {
-    if (this._cache.propertyTypes) return this._cache.propertyTypes;
+    // Quitado cache temporalmente para debug
+    // if (this._cache.propertyTypes) return this._cache.propertyTypes;
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?action=propertyTypes&filter=${encodeURIComponent(
       String(filter),
     )}`;
+    console.log("[DEBUG] URL propertyTypes:", url);
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
     const data = await response.json();
+    console.log("[DEBUG] propertyTypes response:", data);
 
     const list = data?.PropertyType || data?.propertyType || [];
     const out = [];
@@ -307,8 +336,9 @@ class PropertyModel {
     });
     uniq.sort((a, b) => a.label.localeCompare(b.label, "es"));
 
-    this._cache.propertyTypes = [{ id: "", label: "Todos los tipos" }, ...uniq];
-    return this._cache.propertyTypes;
+    const result = [{ id: "", label: "Todos los tipos" }, ...uniq];
+    this._cache.propertyTypes = result;
+    return result;
   }
 
   async fetchLocations(filter = 1) {

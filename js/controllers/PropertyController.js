@@ -60,6 +60,10 @@ class PropertyController {
     try {
       this.isLoading = true;
 
+      if (this.view && typeof this.view.setCurrentFilter === "function") {
+        this.view.setCurrentFilter(this.currentFilter);
+      }
+
       // Cargar propiedades (hace múltiples llamadas si es necesario)
       const result = await this.model.fetchProperties(
         this.currentPage,
@@ -75,6 +79,15 @@ class PropertyController {
       if (this.paginationView) {
         this.paginationView.render(result.pagination);
       }
+
+      document.dispatchEvent(
+        new CustomEvent("properties:updated", {
+          detail: {
+            filter: this.currentFilter,
+            page: this.currentPage,
+          },
+        }),
+      );
 
       console.log(
         "[SearchProperties] Propiedades cargadas:",

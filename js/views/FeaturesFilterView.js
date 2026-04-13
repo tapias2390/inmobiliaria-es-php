@@ -139,11 +139,13 @@ class FeaturesFilterView {
 
     return values
       .map((v) => {
-        const safe = this.escape(v);
+        const label = this.getFeatureLabel(v);
+        const safeLabel = this.escape(label);
+        const safeValue = this.escape(v);
         return `
           <span class="features-filters__tag">
-            <span class="features-filters__tag-text">${safe}</span>
-            <button type="button" class="features-filters__tag-remove" data-group="${group}" data-remove-feature="${safe}">×</button>
+            <span class="features-filters__tag-text">${safeLabel}</span>
+            <button type="button" class="features-filters__tag-remove" data-group="${group}" data-remove-feature="${safeValue}">×</button>
           </span>
         `;
       })
@@ -156,7 +158,14 @@ class FeaturesFilterView {
     const match = (this.features || []).find(
       (f) => String(f.label || "").toLowerCase() === s.toLowerCase(),
     );
-    return match ? match.label : s;
+    return match ? String(match.value) : "";
+  }
+
+  getFeatureLabel(value) {
+    const v = String(value || "").trim();
+    if (!v) return "";
+    const match = (this.features || []).find((f) => String(f.value) === v);
+    return match ? String(match.label || match.value) : v;
   }
 
   escape(v) {

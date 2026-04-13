@@ -1,11 +1,14 @@
 class SearchFiltersView {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
+    this.locationsData = null;
     this.state = {
       province: "",
       location: "",
       minPrice: "",
       maxPrice: "",
+      builtMin: "",
+      builtMax: "",
       beds: "",
       baths: "",
       sortType: "",
@@ -13,24 +16,33 @@ class SearchFiltersView {
     };
   }
 
+  setLocations(locationsData) {
+    this.locationsData = locationsData || null;
+  }
+
   render() {
     if (!this.container) return;
+
+    const provinces = this.getProvinces();
+    const locations = this.getLocationsForProvince(this.state.province);
 
     this.container.innerHTML = `
       <form class="search-filters" id="searchFiltersForm">
         <div class="search-filters__row">
           <div class="search-filters__field">
             <label for="sf-province">Provincia</label>
-            <input id="sf-province" name="province" type="text" value="${this.escape(
-              this.state.province,
-            )}" placeholder="Ej: Málaga" />
+            <select id="sf-province" name="province">
+              ${this.selectOptions(provinces, this.state.province, "Todas")}
+            </select>
           </div>
 
           <div class="search-filters__field">
             <label for="sf-location">Ubicación</label>
-            <input id="sf-location" name="location" type="text" value="${this.escape(
-              this.state.location,
-            )}" placeholder="Ej: Marbella" />
+            <select id="sf-location" name="location" ${
+              locations.length === 0 ? "disabled" : ""
+            }>
+              ${this.selectOptions(locations, this.state.location, "Todas")}
+            </select>
           </div>
 
           <div class="search-filters__field">
@@ -49,6 +61,20 @@ class SearchFiltersView {
         </div>
 
         <div class="search-filters__row">
+          <div class="search-filters__field">
+            <label for="sf-builtMin">Construidos mín. (m²)</label>
+            <input id="sf-builtMin" name="builtMin" type="number" min="0" value="${this.escape(
+              this.state.builtMin,
+            )}" placeholder="0" />
+          </div>
+
+          <div class="search-filters__field">
+            <label for="sf-builtMax">Construidos máx. (m²)</label>
+            <input id="sf-builtMax" name="builtMax" type="number" min="0" value="${this.escape(
+              this.state.builtMax,
+            )}" placeholder="0" />
+          </div>
+
           <div class="search-filters__field">
             <label for="sf-beds">Dormitorios</label>
             <select id="sf-beds" name="beds">
@@ -117,6 +143,14 @@ class SearchFiltersView {
   bind(onChange) {
     if (!this.container) return;
 
+    this.container.addEventListener("change", (e) => {
+      if (e.target && e.target.id === "sf-province") {
+        const province = String(e.target.value || "");
+        this.state = { ...this.state, province, location: "" };
+        this.render();
+      }
+    });
+
     this.container.addEventListener("submit", (e) => {
       const form = e.target.closest("#searchFiltersForm");
       if (!form) return;
@@ -129,6 +163,8 @@ class SearchFiltersView {
         location: (data.get("location") || "").toString().trim(),
         minPrice: (data.get("minPrice") || "").toString().trim(),
         maxPrice: (data.get("maxPrice") || "").toString().trim(),
+        builtMin: (data.get("builtMin") || "").toString().trim(),
+        builtMax: (data.get("builtMax") || "").toString().trim(),
         beds: (data.get("beds") || "").toString().trim(),
         baths: (data.get("baths") || "").toString().trim(),
         sortType: (data.get("sortType") || "").toString().trim(),
@@ -148,6 +184,8 @@ class SearchFiltersView {
         location: "",
         minPrice: "",
         maxPrice: "",
+        builtMin: "",
+        builtMax: "",
         beds: "",
         baths: "",
         sortType: "",
@@ -168,6 +206,42 @@ class SearchFiltersView {
           }>${i.l}</option>`,
       )
       .join("");
+  }
+
+  selectOptions(items, selected, allLabel = "") {
+    const safeAll = this.escape(allLabel);
+    const allOpt = `<option value="" ${selected === "" ? "selected" : ""}>${safeAll}</option>`;
+    const opts = (items || [])
+      .map((x) => {
+        const v = this.escape(x);
+        return `<option value="${v}" ${x === selected ? "selected" : ""}>${v}</option>`;
+      })
+      .join("");
+    return allOpt + opts;
+  }
+
+  getProvinces() {
+    const data = this.locationsData;
+    if (!data) return [];
+    if (Array.isArray(data.provinces)) return data.provinces;
+    if (data instanceof Map) return [...data.keys()];
+    if (typeof data === "object") return Object.keys(data);
+    return [];
+  }
+
+  getLocationsForProvince(province) {
+    const p = String(province || "").trim();
+    if (!p) return [];
+
+    const data = this.locationsData;
+    if (!data) return [];
+    if (data instanceof Map) return [...(data.get(p) || [])];
+    if (typeof data === "object" && data[p]) {
+      const v = data[p];
+      if (Array.isArray(v)) return v;
+      if (v instanceof Set) return [...v];
+    }
+    return [];
   }
 
   escape(v) {

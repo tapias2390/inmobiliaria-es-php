@@ -24,9 +24,9 @@ class PropertyDetailView {
     this.container.innerHTML = `
       <div class="property-detail">
         <div class="property-detail__breadcrumb">
-          <a href="index.html">Home</a>
+          <a href="index.php">Home</a>
           <span>/</span>
-          <a href="index.html">Propiedades</a>
+          <a href="index.php">Propiedades</a>
           <span>/</span>
           <span class="current">${property.type} en ${property.location}</span>
         </div>
@@ -137,7 +137,7 @@ class PropertyDetailView {
         </div>
 
         <div class="property-detail__back">
-          <a href="index.html" class="sc_button">« Volver a propiedades</a>
+          <a href="index.php" class="sc_button">« Volver a propiedades</a>
         </div>
       </div>
     `;
@@ -151,7 +151,7 @@ class PropertyDetailView {
     this.container.innerHTML = `
       <div class="property-detail__error">
         <p>${message}</p>
-        <a href="index.html" class="sc_button">Volver</a>
+        <a href="index.php" class="sc_button">Volver</a>
       </div>
     `;
   }

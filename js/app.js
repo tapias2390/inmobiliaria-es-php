@@ -63,9 +63,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cargar catálogos para filtros dinámicos
   (async () => {
     try {
-      const [types, features] = await Promise.all([
+      const [types, features, locations] = await Promise.all([
         model.fetchPropertyTypes(controller.currentFilter),
         model.fetchFeatures(controller.currentFilter),
+        model.fetchLocations(controller.currentFilter),
       ]);
 
       if (
@@ -80,10 +81,58 @@ document.addEventListener("DOMContentLoaded", () => {
         featuresFilterView.setFeatures(features);
         featuresFilterView.render();
       }
+
+      if (locations) {
+        searchFiltersView.setLocations(locations);
+        searchFiltersView.render();
+      }
     } catch (e) {
       console.warn("No se pudieron cargar catálogos de filtros:", e);
     }
   })();
 
   controller.init();
+
+  // Modal de filtros (los filtros solo existen dentro del modal)
+  const filterModal = document.getElementById("filterModal");
+  const filterModalOverlay = document.getElementById("filterModalOverlay");
+  const filterModalClose = document.getElementById("filterModalClose");
+  const filterModalApply = document.getElementById("filterModalApply");
+  const filterToggleBtn = document.getElementById("filterToggleBtn");
+
+  // Abrir modal
+  if (filterToggleBtn) {
+    filterToggleBtn.addEventListener("click", () => {
+      filterModal.classList.add("is-open");
+      document.body.style.overflow = "hidden";
+    });
+  }
+
+  // Cerrar modal
+  const closeFilterModal = () => {
+    filterModal.classList.remove("is-open");
+    document.body.style.overflow = "";
+  };
+
+  if (filterModalOverlay) {
+    filterModalOverlay.addEventListener("click", closeFilterModal);
+  }
+
+  if (filterModalClose) {
+    filterModalClose.addEventListener("click", closeFilterModal);
+  }
+
+  // Aplicar filtros desde el modal
+  if (filterModalApply) {
+    filterModalApply.addEventListener("click", () => {
+      closeFilterModal();
+    });
+  }
+
+  // Cerrar modal con Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && filterModal?.classList.contains("is-open")) {
+      closeFilterModal();
+    }
+  });
 });

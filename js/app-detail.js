@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const filter = urlParams.get("filter") || "1";
 
   if (!reference) {
-    window.location.href = "index.html";
+    window.location.href = "index.php";
     return;
   }
 
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   detailView.renderLoading();
 
   try {
-    const property = await model.fetchPropertyByReference(reference);
+    const property = await model.fetchPropertyByReference(reference, filter);
     detailView.render(property);
   } catch (error) {
     console.error("Error loading property:", error);

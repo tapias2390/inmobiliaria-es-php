@@ -49,8 +49,8 @@ $sandbox = getenv('SANDBOX') ?: 'false';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 40;
 $page = $page > 0 ? $page : 1;
-$limit = $limit > 0 ? $limit : 40;
-$limit = min(40, $limit);
+$limit = $limit > 0 ? $limit : 30;
+$limit = min(30, $limit);
 $filterId = isset($_GET['filter']) ? (int)$_GET['filter'] : 1;
 $reference = isset($_GET['ref']) ? $_GET['ref'] : '';
 
