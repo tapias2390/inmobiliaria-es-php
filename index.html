@@ -78,9 +78,24 @@
       <div class="container">
         <section class="properties-section">
           <h1>Propiedades</h1>
-          <div id="filter-container"></div>
-          <div id="property-type-filter"></div>
+          
+          <!-- Filtros principales -->
+          <div class="filters-bar">
+            <div id="filter-container"></div>
+            <div id="property-type-filter"></div>
+          </div>
+          
+          <!-- Filtros avanzados -->
+          <div class="advanced-filters">
+            <div id="search-filters-container"></div>
+            <div id="features-filter-container"></div>
+          </div>
+          
+          <!-- Listado de propiedades -->
           <div id="properties-container"></div>
+          
+          <!-- Paginación al final -->
+          <div id="pagination-container"></div>
         </section>
       </div>
     </main>
@@ -142,7 +157,10 @@
     <script src="js/models/PropertyModel.js"></script>
     <script src="js/views/PropertyView.js"></script>
     <script src="js/views/FilterView.js"></script>
+    <script src="js/views/SearchFiltersView.js"></script>
     <script src="js/views/PropertyTypeFilterView.js"></script>
+    <script src="js/views/FeaturesFilterView.js"></script>
+    <script src="js/views/PaginationView.js"></script>
     <script src="js/controllers/PropertyController.js"></script>
     <script src="js/app.js"></script>
   </body>

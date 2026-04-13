@@ -35,40 +35,17 @@ class PropertyView {
     }
   }
 
+  removeLoadMore() {
+    const loadMoreBtn = document.getElementById("load-more-btn");
+    if (loadMoreBtn) loadMoreBtn.remove();
+  }
+
   renderLoadMore(hasMore) {
-    let loadMoreBtn = document.getElementById("load-more-btn");
-
-    if (!hasMore) {
-      if (loadMoreBtn) loadMoreBtn.remove();
-      return;
-    }
-
-    if (!loadMoreBtn) {
-      loadMoreBtn = document.createElement("div");
-      loadMoreBtn.id = "load-more-btn";
-      loadMoreBtn.style.textAlign = "center";
-      loadMoreBtn.style.marginTop = "20px";
-      this.container.appendChild(loadMoreBtn);
-    }
-
-    loadMoreBtn.innerHTML = `
-      <button class="load-more-button" style="
-        padding: 12px 30px;
-        font-size: 14px;
-        background: #1a1a1a;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      ">Cargar más propiedades</button>
-    `;
+    this.removeLoadMore();
   }
 
   bindLoadMore(onLoadMore) {
-    const btn = document.getElementById("load-more-btn");
-    if (btn) {
-      btn.onclick = onLoadMore;
-    }
+    this.removeLoadMore();
   }
 
   renderEmpty() {

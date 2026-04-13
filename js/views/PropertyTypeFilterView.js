@@ -23,6 +23,11 @@ class PropertyTypeFilterView {
     this.activeType = "";
   }
 
+  setTypes(types) {
+    if (!Array.isArray(types) || types.length === 0) return;
+    this.propertyTypes = types;
+  }
+
   render() {
     if (!this.container) return;
 

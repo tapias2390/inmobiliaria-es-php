@@ -36,16 +36,54 @@ document.addEventListener("DOMContentLoaded", () => {
   const model = new PropertyModel(CONFIG);
   const view = new PropertyView("properties-container");
   const filterView = new FilterView("filter-container");
+  const searchFiltersView = new SearchFiltersView("search-filters-container");
   const propertyTypeFilterView = new PropertyTypeFilterView(
     "property-type-filter",
   );
-  const controller = new PropertyController(model, view);
+  const featuresFilterView = new FeaturesFilterView(
+    "features-filter-container",
+  );
+  const paginationView = new PaginationView("pagination-container");
+  const controller = new PropertyController(model, view, paginationView);
 
   filterView.render();
   filterView.bind((filterId) => controller.setFilter(filterId));
 
   propertyTypeFilterView.render();
   propertyTypeFilterView.bind((type) => controller.setPropertyType(type));
+
+  searchFiltersView.render();
+  searchFiltersView.bind((filters) => controller.setSearchFilters(filters));
+
+  featuresFilterView.render();
+  featuresFilterView.bind((payload) => controller.setSearchFilters(payload));
+
+  paginationView.bind((page) => controller.goToPage(page));
+
+  // Cargar catálogos para filtros dinámicos
+  (async () => {
+    try {
+      const [types, features] = await Promise.all([
+        model.fetchPropertyTypes(controller.currentFilter),
+        model.fetchFeatures(controller.currentFilter),
+      ]);
+
+      if (
+        Array.isArray(types) &&
+        typeof propertyTypeFilterView.setTypes === "function"
+      ) {
+        propertyTypeFilterView.setTypes(types);
+        propertyTypeFilterView.render();
+      }
+
+      if (Array.isArray(features)) {
+        featuresFilterView.setFeatures(features);
+        featuresFilterView.render();
+      }
+    } catch (e) {
+      console.warn("No se pudieron cargar catálogos de filtros:", e);
+    }
+  })();
 
   controller.init();
 });

@@ -47,9 +47,74 @@ $language = $langMap[$langCode] ?? '2';
 $sandbox = getenv('SANDBOX') ?: 'false';
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 40;
+$page = $page > 0 ? $page : 1;
+$limit = $limit > 0 ? $limit : 40;
+$limit = min(40, $limit);
 $filterId = isset($_GET['filter']) ? (int)$_GET['filter'] : 1;
 $reference = isset($_GET['ref']) ? $_GET['ref'] : '';
+
+// Acciones auxiliares (para llenar filtros dinámicos en el frontend)
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
+    $action = $_GET['action'];
+
+    $baseParams = [
+        'p_agency_filterid' => $filterId,
+        'p1' => $agencyId,
+        'p2' => $apiKey,
+        'P_sandbox' => $sandbox,
+        'p_lang' => $language,
+    ];
+
+    if ($action === 'locations') {
+        $pAll = isset($_GET['all']) ? $_GET['all'] : '';
+        if ($pAll !== '') {
+            $baseParams['P_All'] = $pAll;
+        }
+        $sortType = isset($_GET['sortType']) ? $_GET['sortType'] : '';
+        if ($sortType !== '') {
+            $baseParams['P_SortType'] = $sortType;
+        }
+
+        $u = "$apiBaseUrl/SearchLocations?" . http_build_query($baseParams);
+    } elseif ($action === 'propertyTypes') {
+        $u = "$apiBaseUrl/SearchPropertyTypes?" . http_build_query($baseParams);
+    } elseif ($action === 'features') {
+        $u = "$apiBaseUrl/SearchFeatures?" . http_build_query($baseParams);
+    } else {
+        http_response_code(400);
+        echo json_encode(['error' => 'Acción no válida']);
+        exit;
+    }
+
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $u,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYPEER => true
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($error) {
+        http_response_code(500);
+        echo json_encode(['error' => $error]);
+        exit;
+    }
+
+    if ($httpCode !== 200) {
+        http_response_code($httpCode);
+        echo $response;
+        exit;
+    }
+
+    echo $response;
+    exit;
+}
 
 // Manejar RegisterLead
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'registerLead') {
@@ -130,7 +195,7 @@ $searchParams = [
     'sortType' => 'P_SortType',
     'currency' => 'P_Currency',
     'energyRating' => 'P_EnergyRating',
-    'newDevs' => 'p_new_devs',
+    'newDevs' => 'P_New_Devs',
     'images' => 'P_Images',
     'dimension' => 'P_Dimension',
     'builtMin' => 'P_Built_Min',
@@ -151,11 +216,24 @@ foreach ($searchParams as $key => $apiParam) {
     }
 }
 
+// Features: Debe tener / Preferible tener (ParamName separados por coma)
+foreach (['featuresMust', 'featuresPrefer'] as $featuresKey) {
+    if (!isset($_GET[$featuresKey]) || $_GET[$featuresKey] === '') continue;
+    $raw = (string)$_GET[$featuresKey];
+    $parts = array_filter(array_map('trim', explode(',', $raw)));
+
+    foreach ($parts as $paramName) {
+        // Seguridad: solo permitir nombres tipo "1Setting1" "2Pool3" (alfa-numérico)
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $paramName)) continue;
+        $params[$paramName] = '1';
+    }
+}
+
 if (!empty($reference)) {
     $params['P_RefId'] = $reference;
 } else {
-    $params['p_page'] = $page;
-    $params['p_limit'] = $limit;
+    $params['P_PageNo'] = $page;
+    $params['P_PageSize'] = $limit;
 }
 
 $params = http_build_query($params);

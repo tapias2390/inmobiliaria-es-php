@@ -55,6 +55,12 @@ class PaginationView {
       if (!btn) return;
 
       const page = Number(btn.getAttribute("data-page"));
+      console.log(
+        "[PaginationView] Click en página:",
+        page,
+        "disabled:",
+        btn.disabled,
+      );
       if (!Number.isFinite(page) || page <= 0) return;
       if (btn.disabled) return;
 

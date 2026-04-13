@@ -1,6 +1,11 @@
 class PropertyModel {
   constructor(config) {
     this.config = config;
+    this._cache = {
+      features: null,
+      propertyTypes: null,
+      locations: null,
+    };
     this.translations = {
       status: {
         Available: "Disponible",
@@ -31,7 +36,13 @@ class PropertyModel {
     };
   }
 
-  async fetchProperties(page = 1, limit = 10, filter = 1, propertyType = "") {
+  async fetchProperties(
+    page = 1,
+    limit = 10,
+    filter = 1,
+    propertyType = "",
+    extraFilters = {},
+  ) {
     const params = new URLSearchParams({
       page: page,
       limit: limit,
@@ -40,6 +51,38 @@ class PropertyModel {
     if (propertyType) {
       params.append("propertyTypes", propertyType);
     }
+
+    const allowedExtra = [
+      "beds",
+      "baths",
+      "minPrice",
+      "maxPrice",
+      "location",
+      "province",
+      "sortType",
+      "newDevs",
+      "featuresMust",
+      "featuresPrefer",
+    ];
+
+    allowedExtra.forEach((k) => {
+      if (!extraFilters || !(k in extraFilters)) return;
+      const v = extraFilters[k];
+      if (v === undefined || v === null || v === "") return;
+      if (Array.isArray(v)) {
+        const csv = v
+          .map((x) => String(x))
+          .filter(Boolean)
+          .join(",");
+        if (csv) params.append(k, csv);
+        return;
+      }
+      if (typeof v === "boolean") {
+        if (v) params.append(k, "1");
+        return;
+      }
+      params.append(k, String(v));
+    });
 
     console.log(
       "API URL:",
@@ -56,19 +99,39 @@ class PropertyModel {
 
     const data = await response.json();
     console.log("API Response for filter:", data.QueryInfo);
+
+    const properties = this.transformProperties(data);
+    const queryInfo = data.QueryInfo || {};
+    const total = Number(queryInfo.PropertyCount || 0);
+    const perPage = Number(queryInfo.PropertiesPerPage || limit);
+    const currentPage = Number(queryInfo.CurrentPage || 1);
+    const totalPages = perPage > 0 ? Math.ceil(total / perPage) : 1;
+
+    console.log(
+      `[fetchProperties] Página ${currentPage}/${totalPages}, ${properties.length} propiedades de ${total}`,
+    );
+
     return {
-      properties: this.transformProperties(data),
-      pagination: this.transformPagination(data),
+      properties: properties,
+      pagination: {
+        total,
+        perPage,
+        currentPage,
+        totalPages,
+      },
     };
   }
 
-  transformPagination(data) {
+  transformPagination(data, limit = 40, userPage = 1) {
     const queryInfo = data.QueryInfo || {};
     const total = Number(queryInfo.PropertyCount || 0);
-    const perPage = Number(queryInfo.PropertiesPerPage || 0);
-    const currentPage = Number(queryInfo.CurrentPage || 1);
 
-    const totalPages = perPage > 0 ? Math.ceil(total / perPage) : 1;
+    // Calcular páginas basándose en el límite de 40 propiedades por "página" del usuario
+    const perPage = limit;
+    const totalPages = Math.ceil(total / perPage);
+
+    // Usar la página del usuario directamente
+    const currentPage = userPage;
 
     return {
       total,
@@ -100,8 +163,8 @@ class PropertyModel {
       parking: property.Parking || 0,
       garden: property.Garden || 0,
       description: this.stripHtml(property.Description || ""),
-      mainImage: property.MainImage || "",
       images: this.extractImages(property),
+      mainImage: property.MainImage || this.extractImages(property)[0] || "",
       features: this.extractFeatures(property.PropertyFeatures),
     }));
   }
@@ -154,5 +217,150 @@ class PropertyModel {
     console.log("API Response:", data);
     const properties = this.transformProperties(data);
     return properties.length > 0 ? properties[0] : null;
+  }
+
+  async fetchFeatures(filter = 1) {
+    if (this._cache.features) return this._cache.features;
+
+    const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?action=features&filter=${encodeURIComponent(
+      String(filter),
+    )}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    const data = await response.json();
+
+    // Normalizar: quedarnos con ParamName (se usa como parámetro) + texto
+    const out = [];
+    const groups = data?.Features || data?.FeatureGroups || data;
+
+    // Intento genérico: recorrer objetos/arrays y buscar elementos con ParamName + Name
+    const visit = (node) => {
+      if (!node) return;
+      if (Array.isArray(node)) {
+        node.forEach(visit);
+        return;
+      }
+      if (typeof node !== "object") return;
+
+      if (node.ParamName && (node.Name || node.ParamText || node.Description)) {
+        out.push({
+          value: String(node.ParamName),
+          label: String(node.Name || node.ParamText || node.Description),
+        });
+      }
+
+      Object.values(node).forEach(visit);
+    };
+
+    visit(groups);
+
+    // dedupe
+    const seen = new Set();
+    const uniq = out.filter((x) => {
+      if (!x.value || seen.has(x.value)) return false;
+      seen.add(x.value);
+      return true;
+    });
+
+    uniq.sort((a, b) => a.label.localeCompare(b.label, "es"));
+    this._cache.features = uniq;
+    return uniq;
+  }
+
+  async fetchPropertyTypes(filter = 1) {
+    if (this._cache.propertyTypes) return this._cache.propertyTypes;
+
+    const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?action=propertyTypes&filter=${encodeURIComponent(
+      String(filter),
+    )}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    const data = await response.json();
+
+    const list = data?.PropertyType || data?.propertyType || [];
+    const out = [];
+
+    const visit = (node) => {
+      if (!node) return;
+      if (Array.isArray(node)) {
+        node.forEach(visit);
+        return;
+      }
+      if (typeof node !== "object") return;
+
+      if (node.TypeId && (node.NameType || node.Name)) {
+        out.push({
+          id: String(node.TypeId),
+          label: String(node.NameType || node.Name),
+        });
+      }
+
+      Object.values(node).forEach(visit);
+    };
+    visit(list);
+
+    const seen = new Set();
+    const uniq = out.filter((x) => {
+      if (!x.id || seen.has(x.id)) return false;
+      seen.add(x.id);
+      return true;
+    });
+    uniq.sort((a, b) => a.label.localeCompare(b.label, "es"));
+
+    this._cache.propertyTypes = [{ id: "", label: "Todos los tipos" }, ...uniq];
+    return this._cache.propertyTypes;
+  }
+
+  async fetchLocations(filter = 1) {
+    if (this._cache.locations) return this._cache.locations;
+
+    const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?action=locations&filter=${encodeURIComponent(
+      String(filter),
+    )}&all=TRUE&sortType=1`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    const data = await response.json();
+
+    const provinces = new Map();
+
+    const visit = (node, currentProvince = null) => {
+      if (!node) return;
+      if (Array.isArray(node)) {
+        node.forEach((x) => visit(x, currentProvince));
+        return;
+      }
+      if (typeof node !== "object") return;
+
+      const provinceName =
+        node.ProvinceAreaName || node.ProvinceName || currentProvince;
+      if (provinceName && node.Location && Array.isArray(node.Location)) {
+        if (!provinces.has(provinceName))
+          provinces.set(provinceName, new Set());
+        node.Location.forEach((loc) => {
+          if (loc) provinces.get(provinceName).add(String(loc));
+        });
+      }
+
+      Object.values(node).forEach((v) => visit(v, provinceName));
+    };
+
+    visit(data);
+
+    const provincesArr = [...provinces.keys()].sort((a, b) =>
+      a.localeCompare(b, "es"),
+    );
+
+    const locationsByProvince = {};
+    provincesArr.forEach((p) => {
+      locationsByProvince[p] = [...provinces.get(p)].sort((a, b) =>
+        a.localeCompare(b, "es"),
+      );
+    });
+
+    this._cache.locations = {
+      provinces: provincesArr,
+      locationsByProvince,
+    };
+    return this._cache.locations;
   }
 }
