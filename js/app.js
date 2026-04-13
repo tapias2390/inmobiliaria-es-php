@@ -135,4 +135,11 @@ document.addEventListener("DOMContentLoaded", () => {
       closeFilterModal();
     }
   });
+
+  // Cuando se aplican filtros (o cambia página), cerrar el modal
+  document.addEventListener("properties:updated", () => {
+    if (filterModal?.classList.contains("is-open")) {
+      closeFilterModal();
+    }
+  });
 });
