@@ -12,6 +12,9 @@ class PropertyDetailView {
       return;
     }
 
+    const zone =
+      property.subLocation || property.location || property.area || "";
+
     const images =
       property.images && property.images.length > 0
         ? property.images
@@ -98,7 +101,7 @@ class PropertyDetailView {
               ${property.terrace > 0 ? this.renderDetailItem("Terraza", `${property.terrace} m²`) : ""}
               ${property.pool > 0 ? this.renderDetailItem("Piscina", "Sí") : ""}
               ${property.garden > 0 ? this.renderDetailItem("Jardín", "Sí") : ""}
-              ${property.area ? this.renderDetailItem("Zona", property.area) : ""}
+              ${zone ? this.renderDetailItem("Zona", zone) : ""}
               ${property.province ? this.renderDetailItem("Provincia", property.province) : ""}
               ${property.subLocation ? this.renderDetailItem("Sububicación", property.subLocation) : ""}
             </div>
