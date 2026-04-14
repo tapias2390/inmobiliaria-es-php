@@ -98,6 +98,7 @@ class PropertyModel {
     const data = await response.json();
 
     const properties = this.transformProperties(data);
+    //console.log("Propiedades:", properties);
     const queryInfo = data.QueryInfo || {};
     const total = Number(queryInfo.PropertyCount || 0);
     const perPage = Number(queryInfo.PropertiesPerPage || limit);
@@ -209,7 +210,7 @@ class PropertyModel {
     }
 
     const data = await response.json();
-    console.log("API Response:", data);
+    //console.log("API Response:", data);
     const properties = this.transformProperties(data);
     return properties.length > 0 ? properties[0] : null;
   }
@@ -363,9 +364,12 @@ class PropertyModel {
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?action=locations&filter=${encodeURIComponent(
       String(filter),
     )}&all=TRUE&sortType=1`;
-    // Cargar siempre desde archivo local para evitar problemas con la API
-    const res = await fetch("data/locations.json");
-    const data = await res.json();
+    // console.log("fetchLocations URL:", url);
+    const response = await fetch(url);
+    //console.log("fetchLocations response:", response);
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    const data = await response.json();
+    //console.log("fetchLocations data:", data);
 
     const provinceSysArea = data?.ProvinceSysArea || [];
 
@@ -387,6 +391,9 @@ class PropertyModel {
         }
       } else {
         // Es una zona, asignar a su provincia padre
+        // En algunos filtros la API no devuelve provincias con Parent==Name,
+        // así que también consideramos el Parent como provincia.
+        provinceSet.add(parent);
         if (!locationsByProvince[parent]) {
           locationsByProvince[parent] = [];
         }
@@ -398,13 +405,15 @@ class PropertyModel {
       a.localeCompare(b, "es"),
     );
 
+    const provincesFinal = provincesArr;
+
     // Ordenar las zonas dentro de cada provincia
     Object.keys(locationsByProvince).forEach((p) => {
       locationsByProvince[p].sort((a, b) => a.localeCompare(b, "es"));
     });
 
     this._cache.locations = {
-      provinces: provincesArr,
+      provinces: provincesFinal,
       locationsByProvince,
     };
     return this._cache.locations;

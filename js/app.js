@@ -1,19 +1,23 @@
 const toggle = document.getElementById("menuToggle");
 const nav = document.getElementById("nav");
 
-toggle.addEventListener("click", () => {
-  nav.classList.toggle("active");
-  toggle.classList.toggle("active");
-});
+if (toggle && nav) {
+  toggle.addEventListener("click", () => {
+    nav.classList.toggle("active");
+    toggle.classList.toggle("active");
+  });
+}
 
 const menuDots = document.querySelector(".menu-dots");
 if (menuDots) {
   const dotsToggle = menuDots.querySelector(".dots-toggle");
-  dotsToggle.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    menuDots.classList.toggle("active");
-  });
+  if (dotsToggle) {
+    dotsToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      menuDots.classList.toggle("active");
+    });
+  }
 }
 
 document.addEventListener("click", (e) => {
@@ -46,14 +50,40 @@ document.addEventListener("DOMContentLoaded", () => {
   const paginationView = new PaginationView("pagination-container");
   const controller = new PropertyController(model, view, paginationView);
 
+  // Referencias del modal
+  const filterModal = document.getElementById("filterModal");
+
   filterView.render();
   filterView.bind((filterId) => controller.setFilter(filterId));
 
-  propertyTypeFilterView.render();
+  if (typeof propertyTypeFilterView.render === "function") {
+    propertyTypeFilterView.render();
+  }
   propertyTypeFilterView.bind((type) => controller.setPropertyType(type));
 
-  searchFiltersView.render();
-  searchFiltersView.bind((filters) => controller.setSearchFilters(filters));
+  searchFiltersView.bind(async (filters) => {
+    // Cerrar modal primero
+    filterModal.classList.remove("is-open");
+    document.body.style.overflow = "";
+
+    // Luego mostrar indicador de carga
+    const container = document.getElementById("search-filters-container");
+    if (container) {
+      container.innerHTML =
+        '<div style="text-align:center;padding:20px;"><span class="loader"></span><br>Cargando...</div>';
+    }
+
+    // Recargar locations al aplicar filtros
+    try {
+      const locations = await model.fetchLocations(controller.currentFilter);
+      if (locations) {
+        searchFiltersView.setLocations(locations);
+      }
+    } catch (e) {
+      console.error("Error loading locations:", e);
+    }
+    controller.setSearchFilters(filters);
+  });
 
   featuresFilterView.render();
   featuresFilterView.bind((payload) => controller.setSearchFilters(payload));
@@ -84,7 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (locations) {
         searchFiltersView.setLocations(locations);
-        searchFiltersView.render();
       }
     } catch (e) {
       console.warn("No se pudieron cargar catálogos de filtros:", e);
@@ -94,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
   controller.init();
 
   // Modal de filtros (los filtros solo existen dentro del modal)
-  const filterModal = document.getElementById("filterModal");
   const filterModalOverlay = document.getElementById("filterModalOverlay");
   const filterModalClose = document.getElementById("filterModalClose");
   const filterModalApply = document.getElementById("filterModalApply");

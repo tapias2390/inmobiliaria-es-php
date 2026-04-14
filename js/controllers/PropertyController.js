@@ -47,7 +47,7 @@ class PropertyController {
   }
 
   async goToPage(page) {
-    console.log("[Controller] goToPage:", page, "isLoading:", this.isLoading);
+    //console.log("[Controller] goToPage:", page, "isLoading:", this.isLoading);
     if (this.isLoading) return;
     if (!Number.isFinite(page) || page <= 0) return;
     this.currentPage = page;
@@ -89,14 +89,14 @@ class PropertyController {
         }),
       );
 
-      console.log(
+      /* console.log(
         "[SearchProperties] Propiedades cargadas:",
         result.properties.length,
       );
       console.log("Filtro (p_agency_filterid):", this.currentFilter);
       console.log("Tipo propiedad:", this.currentPropertyType || "(todos)");
       console.log("Filtros extra:", this.currentSearchFilters);
-      console.log("QueryInfo:", result.pagination);
+      console.log("QueryInfo:", result.pagination);*/
     } catch (error) {
       this.view.renderError(error.message);
     } finally {

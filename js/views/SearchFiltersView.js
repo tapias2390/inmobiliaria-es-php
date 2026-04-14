@@ -14,22 +14,27 @@ class SearchFiltersView {
       sortType: "",
       newDevs: false,
     };
+    this.render();
   }
 
   setLocations(locationsData) {
     this.locationsData = locationsData || null;
+    // console.log("setLocations - provinces:", this.getProvinces());
+    //console.log("setLocations - locationsData:", this.locationsData);
+    this.render();
   }
 
   render() {
     if (!this.container) return;
 
     const provinces = this.getProvinces();
+    //console.log("render - provinces:", provinces);
     const locations = this.getLocationsForProvince(this.state.province);
 
     this.container.innerHTML = `
       <form class="search-filters" id="searchFiltersForm">
         <div class="search-filters__row">
-          <div class="search-filters__field">
+          <div class="search-filters__field" style="display:none;">
             <label for="sf-province">Provincia</label>
             <select id="sf-province" name="province">
               ${this.selectOptions(provinces, this.state.province, "Todas")}
@@ -222,10 +227,31 @@ class SearchFiltersView {
 
   getProvinces() {
     const data = this.locationsData;
-    if (!data) return [];
-    if (Array.isArray(data.provinces)) return data.provinces;
+    // Si falla la carga desde API, al menos mostrar un listado básico
+    if (!data) {
+      return [
+        "Málaga",
+        "Cádiz",
+        "Sevilla",
+        "Granada",
+        "Huelva",
+        "Córdoba",
+        "Almería",
+        "Jaén",
+      ];
+    }
+    if (Array.isArray(data.provinces) && data.provinces.length > 0)
+      return data.provinces;
     if (data instanceof Map) return [...data.keys()];
-    if (typeof data === "object") return Object.keys(data);
+    if (typeof data === "object") {
+      if (
+        data.locationsByProvince &&
+        typeof data.locationsByProvince === "object"
+      ) {
+        return Object.keys(data.locationsByProvince);
+      }
+      return Object.keys(data);
+    }
     return [];
   }
 
@@ -234,14 +260,59 @@ class SearchFiltersView {
     if (!p) return [];
 
     const data = this.locationsData;
-    if (!data) return [];
+
+    // Soportar el formato del modelo: { provinces: [], locationsByProvince: {} }
+    if (data?.locationsByProvince && data.locationsByProvince[p]) {
+      /*console.log(
+        "getLocationsForProvince:",
+        p,
+        "->",
+        data.locationsByProvince[p],
+      );*/
+      return data.locationsByProvince[p];
+    }
+
     if (data instanceof Map) return [...(data.get(p) || [])];
     if (typeof data === "object" && data[p]) {
       const v = data[p];
       if (Array.isArray(v)) return v;
       if (v instanceof Set) return [...v];
     }
-    return [];
+
+    // Fallback: ubicaciones hardcodeadas por provincia
+    const fallbackLocations = {
+      Málaga: [
+        "Casares",
+        "Estepona",
+        "Marbella",
+        "Mijas",
+        "Benalmádena",
+        "Fuengirola",
+        "Torremolinos",
+        "Málaga",
+        "Benahavís",
+        "Coín",
+      ],
+      Cádiz: [
+        "Jerez de la Frontera",
+        "Cádiz",
+        "Algeciras",
+        "San Fernando",
+        "El Puerto de Santa María",
+        "Chiclana de la Frontera",
+        "La Línea de la Concepción",
+      ],
+      Sevilla: [
+        "Sevilla",
+        "Alcalá de Guadaíra",
+        "Carmona",
+        "Écija",
+        "Osuna",
+        "Morón de la Frontera",
+      ],
+      Granada: ["Granada", "Almuñécar", "Motril", "Baza", "Loja"],
+    };
+    return fallbackLocations[p] || [];
   }
 
   escape(v) {

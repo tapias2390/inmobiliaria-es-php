@@ -20,31 +20,20 @@ class PropertyTypeFilterView {
       { id: "Shop", label: "Tienda" },
     ];
     this.activeType = "";
+    if (typeof this.render === "function") {
+      this.render();
+    }
   }
 
   setTypes(types) {
+    //console.log("setTypes called with:", types);
     if (!Array.isArray(types) || types.length === 0) return;
     this.propertyTypes = types.filter((t) => String(t?.id || "") !== "");
+    //console.log("propertyTypes after setTypes:", this.propertyTypes);
   }
 
   render() {
     if (!this.container) return;
-
-    this.container.innerHTML = `
-      <div class="property-type-filter">
-        <select class="property-type-select" id="propertyTypeSelect">
-          ${this.propertyTypes
-            .map(
-              (t) => `
-            <option value="${t.id}" ${t.id === this.activeType ? "selected" : ""}>
-              ${t.label}
-            </option>
-          `,
-            )
-            .join("")}
-        </select>
-      </div>
-    `;
   }
 
   bind(onTypeChange) {

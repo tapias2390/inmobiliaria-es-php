@@ -74,7 +74,7 @@ api/config.php?filter=2&page=1
 controller.setFilter(1); // Venta
 controller.setFilter(2); // Alquiler Corto Plazo
 controller.setFilter(3); // Alquiler Largo Plazo
-controller.setFilter(4); // Destacadas
+controlpropertyTypeSelectler.setFilter(4); // Destacadas
 ```
 
 **Desde la interfaz:**

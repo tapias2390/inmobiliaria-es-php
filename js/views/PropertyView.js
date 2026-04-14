@@ -144,8 +144,7 @@ class PropertyView {
                             </span>
                         </div>
                         <div class="sc_properties_item_options">
-                            <div class="sc_properties_item_row sc_properties_item_row_info"></div>
-                            <div class="sc_properties_item_row sc_properties_item_row_info">
+                            <div class="sc_properties_item_row sc_properties_item_row_info" style="display:flex;flex-wrap:wrap;gap:8px;">
                                 ${this.createDetailItem("province", property.province, "Provincia:")}
                                 ${this.createDetailItem("zone", zone, "Zona:")}
                                 ${this.createDetailItem("size", totalSize, "Tamaño (m²):", "m²")}
@@ -180,7 +179,7 @@ class PropertyView {
     if (!value || value === 0) return "";
     const valueText = suffix ? `${value} ${suffix}` : value;
     return `
-            <span class="sc_properties_item_option sc_properties_item_${icon}" title="${label}">
+            <span class="sc_properties_item_option sc_properties_item_${icon}" title="${label}" style="flex:1 1 auto;min-width:120px;">
                 <span class="sc_properties_item_option_label_text">${label}</span>
                 <span class="sc_properties_item_option_data">${valueText}</span>
             </span>

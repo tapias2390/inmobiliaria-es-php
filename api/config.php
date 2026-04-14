@@ -77,6 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
         }
 
         $u = "$apiBaseUrl/SearchLocations?" . http_build_query($baseParams);
+    } elseif ($action === 'provinces') {
+        $u = "$apiBaseUrl/Provinces?" . http_build_query($baseParams);
     } elseif ($action === 'propertyTypes') {
         $u = "$apiBaseUrl/SearchPropertyTypes?" . http_build_query($baseParams);
     } elseif ($action === 'features') {
@@ -108,7 +110,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
 
     if ($httpCode !== 200) {
         http_response_code($httpCode);
-        echo $response;
+        // A veces el API devuelve HTML u otro contenido en errores.
+        // Envolver para que el frontend pueda diagnosticar sin romper JSON.parse.
+        echo json_encode([
+            'error' => 'Upstream API error',
+            'status' => $httpCode,
+            'upstream' => $response,
+            'url' => $u,
+        ]);
         exit;
     }
 
