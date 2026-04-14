@@ -55,6 +55,13 @@ class PropertyDetailView {
           <h1 class="property-detail__title">
             ${property.type} en ${property.location}
             <span class="property-detail__status">${property.status}</span>
+            <button type="button" class="contact-button-small" id="openContactModal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              Contactar
+            </button>
           </h1>
           <div class="property-detail__address">
             <span>${property.type} en ${property.location}</span>
@@ -105,40 +112,43 @@ class PropertyDetailView {
           <div id="property-map" style="width: 100%; height: 400px; background: #f0f0f0; border-radius: 8px;"></div>
         </div>
 
-        <div class="property-detail__contact">
-          <h3>Contactar</h3>
-          <p>¿Te interesa esta propiedad? Rellena el formulario y te contactaremos.</p>
-          <form id="contact-form" class="contact-form">
-            <input type="hidden" name="ref" value="${property.reference}">
-            <div class="contact-form__row">
-              <div class="contact-form__field">
-                <label for="contact-name">Nombre *</label>
-                <input type="text" id="contact-name" name="name" required>
+        <div id="contactModal" class="modal-overlay">
+          <div class="modal-content">
+            <button class="modal-close" id="closeContactModal">&times;</button>
+            <h3>Contactar</h3>
+            <p>¿Te interesa esta propiedad? Rellena el formulario y te contactaremos.</p>
+            <form id="contact-form" class="contact-form">
+              <input type="hidden" name="ref" value="${property.reference}">
+              <div class="contact-form__row">
+                <div class="contact-form__field">
+                  <label for="contact-name">Nombre *</label>
+                  <input type="text" id="contact-name" name="name" required>
+                </div>
+                <div class="contact-form__field">
+                  <label for="contact-surname">Apellido *</label>
+                  <input type="text" id="contact-surname" name="surname" required>
+                </div>
+              </div>
+              <div class="contact-form__row">
+                <div class="contact-form__field">
+                  <label for="contact-email">Email *</label>
+                  <input type="email" id="contact-email" name="email" required>
+                </div>
+                <div class="contact-form__field">
+                  <label for="contact-phone">Teléfono</label>
+                  <input type="tel" id="contact-phone" name="phone">
+                </div>
               </div>
               <div class="contact-form__field">
-                <label for="contact-surname">Apellido *</label>
-                <input type="text" id="contact-surname" name="surname" required>
+                <label for="contact-message">Mensaje *</label>
+                <textarea id="contact-message" name="message" rows="4" required>Estoy interesado en esta propiedad. Por favor, contacten conmigo.</textarea>
               </div>
-            </div>
-            <div class="contact-form__row">
-              <div class="contact-form__field">
-                <label for="contact-email">Email *</label>
-                <input type="email" id="contact-email" name="email" required>
+              <div class="contact-form__actions">
+                <button type="submit" class="sc_button contact-form__submit">Enviar mensaje</button>
               </div>
-              <div class="contact-form__field">
-                <label for="contact-phone">Teléfono</label>
-                <input type="tel" id="contact-phone" name="phone">
-              </div>
-            </div>
-            <div class="contact-form__field">
-              <label for="contact-message">Mensaje *</label>
-              <textarea id="contact-message" name="message" rows="4" required>Estoy interesado en esta propiedad. Por favor, contacten conmigo.</textarea>
-            </div>
-            <div class="contact-form__actions">
-              <button type="submit" class="sc_button contact-form__submit">Enviar mensaje</button>
-            </div>
-            <div id="contact-form-message"></div>
-          </form>
+              <div id="contact-form-message"></div>
+            </form>
+          </div>
         </div>
 
         <div class="property-detail__back">
@@ -150,6 +160,36 @@ class PropertyDetailView {
     this.bindGalleryEvents();
     this.bindContactForm(property.reference);
     this.initMap(property);
+    this.bindModalEvents();
+  }
+
+  bindModalEvents() {
+    const openBtn = document.getElementById("openContactModal");
+    const closeBtn = document.getElementById("closeContactModal");
+    const modal = document.getElementById("contactModal");
+
+    if (openBtn && modal) {
+      openBtn.addEventListener("click", () => {
+        modal.classList.add("is-open");
+        document.body.style.overflow = "hidden";
+      });
+    }
+
+    if (closeBtn && modal) {
+      closeBtn.addEventListener("click", () => {
+        modal.classList.remove("is-open");
+        document.body.style.overflow = "";
+      });
+    }
+
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.classList.remove("is-open");
+          document.body.style.overflow = "";
+        }
+      });
+    }
   }
 
   initMap(property) {
