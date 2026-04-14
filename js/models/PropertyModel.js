@@ -3,8 +3,9 @@ class PropertyModel {
     this.config = config;
     this._cache = {
       features: null,
-      propertyTypes: null,
+      propertyTypesByFilter: {},
       locations: null,
+      provinceCountsByFilter: {},
     };
     this.translations = {
       status: {
@@ -86,19 +87,6 @@ class PropertyModel {
       params.append(k, String(v));
     });
 
-    console.log(
-      "API URL:",
-      `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`,
-    );
-
-    // Debug: verificar filtros de m²
-    if (extraFilters?.builtMin || extraFilters?.builtMax) {
-      console.log("[DEBUG] Filtros m²:", {
-        builtMin: extraFilters.builtMin,
-        builtMax: extraFilters.builtMax,
-      });
-    }
-
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
 
     const response = await fetch(url);
@@ -108,7 +96,6 @@ class PropertyModel {
     }
 
     const data = await response.json();
-    console.log("API Response for filter:", data.QueryInfo);
 
     const properties = this.transformProperties(data);
     const queryInfo = data.QueryInfo || {};
@@ -116,10 +103,6 @@ class PropertyModel {
     const perPage = Number(queryInfo.PropertiesPerPage || limit);
     const currentPage = Number(queryInfo.CurrentPage || 1);
     const totalPages = perPage > 0 ? Math.ceil(total / perPage) : 1;
-
-    console.log(
-      `[fetchProperties] Página ${currentPage}/${totalPages}, ${properties.length} propiedades de ${total}`,
-    );
 
     return {
       properties: properties,
@@ -153,20 +136,6 @@ class PropertyModel {
 
   transformProperties(data) {
     const properties = data.Property || [];
-
-    // Debug: mostrar primera propiedad cruda
-    if (properties.length > 0) {
-      console.log("[DEBUG] Primera propiedad cruda:", {
-        Reference: properties[0].Reference,
-        Price: properties[0].Price,
-        OriginalPrice: properties[0].OriginalPrice,
-        Built: properties[0].Built,
-        Terrace: properties[0].Terrace,
-        Bedrooms: properties[0].Bedrooms,
-        Bathrooms: properties[0].Bathrooms,
-        Parking: properties[0].Parking,
-      });
-    }
 
     return properties.map((property) => ({
       reference: property.Reference,
@@ -294,17 +263,16 @@ class PropertyModel {
   }
 
   async fetchPropertyTypes(filter = 1) {
-    // Quitado cache temporalmente para debug
-    // if (this._cache.propertyTypes) return this._cache.propertyTypes;
+    const key = String(filter || 1);
+    if (this._cache.propertyTypesByFilter[key])
+      return this._cache.propertyTypesByFilter[key];
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?action=propertyTypes&filter=${encodeURIComponent(
       String(filter),
     )}`;
-    console.log("[DEBUG] URL propertyTypes:", url);
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
     const data = await response.json();
-    console.log("[DEBUG] propertyTypes response:", data);
 
     const list = data?.PropertyType || data?.propertyType || [];
     const out = [];
@@ -336,55 +304,103 @@ class PropertyModel {
     });
     uniq.sort((a, b) => a.label.localeCompare(b.label, "es"));
 
-    const result = [{ id: "", label: "Todos los tipos" }, ...uniq];
-    this._cache.propertyTypes = result;
+    const result = [{ id: "", label: "Todos" }, ...uniq];
+    this._cache.propertyTypesByFilter[key] = result;
     return result;
   }
 
+  async fetchProvinceCounts(filter = 1, provinces = []) {
+    const key = String(filter || 1);
+    if (this._cache.provinceCountsByFilter[key])
+      return this._cache.provinceCountsByFilter[key];
+
+    const list = Array.isArray(provinces) ? provinces.filter(Boolean) : [];
+    const out = {};
+    if (list.length === 0) {
+      this._cache.provinceCountsByFilter[key] = out;
+      return out;
+    }
+
+    const concurrency = 3;
+    let idx = 0;
+    const worker = async () => {
+      while (idx < list.length) {
+        const i = idx++;
+        const province = String(list[i]);
+        try {
+          const params = new URLSearchParams({
+            filter: String(filter),
+            page: "1",
+            limit: "1",
+            province,
+          });
+          const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
+          const response = await fetch(url);
+          if (!response.ok) {
+            out[province] = 0;
+            continue;
+          }
+          const data = await response.json();
+          const count = Number(data?.QueryInfo?.PropertyCount || 0);
+          out[province] = Number.isFinite(count) ? count : 0;
+        } catch (e) {
+          out[province] = 0;
+        }
+      }
+    };
+
+    const workers = Array.from({ length: concurrency }, () => worker());
+    await Promise.all(workers);
+
+    this._cache.provinceCountsByFilter[key] = out;
+    return out;
+  }
+
   async fetchLocations(filter = 1) {
-    if (this._cache.locations) return this._cache.locations;
+    // Forzar nueva request (quitar cache temporalmente)
+    // if (this._cache.locations) return this._cache.locations;
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?action=locations&filter=${encodeURIComponent(
       String(filter),
     )}&all=TRUE&sortType=1`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-    const data = await response.json();
+    // Cargar siempre desde archivo local para evitar problemas con la API
+    const res = await fetch("data/locations.json");
+    const data = await res.json();
 
-    const provinces = new Map();
+    const provinceSysArea = data?.ProvinceSysArea || [];
 
-    const visit = (node, currentProvince = null) => {
-      if (!node) return;
-      if (Array.isArray(node)) {
-        node.forEach((x) => visit(x, currentProvince));
-        return;
+    // Las provincias principales tienen Parent igual a su Name
+    // Las zonas tienen Parent apuntando a la provincia
+    const provinceSet = new Set();
+    const locationsByProvince = {};
+
+    provinceSysArea.forEach((item) => {
+      const name = item?.Name;
+      const parent = item?.Parent;
+      if (!name || !parent) return;
+
+      // Si Parent == Name, es una provincia principal
+      if (parent === name) {
+        provinceSet.add(name);
+        if (!locationsByProvince[name]) {
+          locationsByProvince[name] = [];
+        }
+      } else {
+        // Es una zona, asignar a su provincia padre
+        if (!locationsByProvince[parent]) {
+          locationsByProvince[parent] = [];
+        }
+        locationsByProvince[parent].push(name);
       }
-      if (typeof node !== "object") return;
+    });
 
-      const provinceName =
-        node.ProvinceAreaName || node.ProvinceName || currentProvince;
-      if (provinceName && node.Location && Array.isArray(node.Location)) {
-        if (!provinces.has(provinceName))
-          provinces.set(provinceName, new Set());
-        node.Location.forEach((loc) => {
-          if (loc) provinces.get(provinceName).add(String(loc));
-        });
-      }
-
-      Object.values(node).forEach((v) => visit(v, provinceName));
-    };
-
-    visit(data);
-
-    const provincesArr = [...provinces.keys()].sort((a, b) =>
+    const provincesArr = [...provinceSet].sort((a, b) =>
       a.localeCompare(b, "es"),
     );
 
-    const locationsByProvince = {};
-    provincesArr.forEach((p) => {
-      locationsByProvince[p] = [...provinces.get(p)].sort((a, b) =>
-        a.localeCompare(b, "es"),
-      );
+    // Ordenar las zonas dentro de cada provincia
+    Object.keys(locationsByProvince).forEach((p) => {
+      locationsByProvince[p].sort((a, b) => a.localeCompare(b, "es"));
     });
 
     this._cache.locations = {

@@ -5,7 +5,7 @@ class FilterView {
       { id: 1, label: "Venta" },
       { id: 2, label: "Alquiler Corto Plazo" },
       { id: 3, label: "Alquiler Largo Plazo" },
-      { id: 4, label: "Destacadas" },
+      /*{ id: 4, label: "Destacadas" },*/
     ];
     this.activeFilter = 1;
   }

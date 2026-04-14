@@ -106,7 +106,12 @@ class PropertyView {
                         </a>
                         <div class="mask"></div>
                         <div class="icons">
-                            <a href="${detailUrl}" aria-hidden="true" class="icon-eye-1"></a>
+                            <a href="${detailUrl}" class="icon-eye-1" aria-label="Ver detalle" title="Ver detalle">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </a>
                         </div>
                     </div>
                     <div class="sc_properties_item_info">
@@ -192,6 +197,8 @@ class PropertyView {
   }
 
   formatPriceNumber(price) {
-    return new Intl.NumberFormat("es-ES").format(price);
+    const n = Number(price);
+    if (!Number.isFinite(n) || n <= 0) return "Consultar";
+    return new Intl.NumberFormat("es-ES").format(n);
   }
 }

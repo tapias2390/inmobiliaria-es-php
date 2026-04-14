@@ -19,7 +19,7 @@ class PropertyDetailView {
 
     const priceLabel = this.getPriceLabel(property);
     const currencySymbol =
-      property.currency === "EUR" ? "£" : property.currency;
+      property.currency === "EUR" ? "€" : property.currency;
 
     this.container.innerHTML = `
       <div class="property-detail">
