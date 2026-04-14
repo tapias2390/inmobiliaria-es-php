@@ -163,7 +163,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         CURLOPT_URL => $leadUrl,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 30,
-        CURLOPT_SSL_VERIFYPEER => true
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 5,
+        CURLOPT_SSL_VERIFYPEER => false
     ]);
 
     $response = curl_exec($ch);
@@ -172,14 +174,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     curl_close($ch);
 
     if ($error) {
-        echo json_encode(['success' => false, 'message' => 'Error de conexión. Inténtalo de nuevo.']);
+        http_response_code(502);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Error de conexión. Inténtalo de nuevo.',
+            'curl_error' => $error,
+            'status' => $httpCode,
+            'url' => $leadUrl,
+        ]);
         exit;
     }
 
-    if (strpos($response, 'successfully') !== false) {
+    if ($httpCode !== 200) {
+        http_response_code($httpCode);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Error al enviar el mensaje. Inténtalo de nuevo.',
+            'status' => $httpCode,
+            'upstream' => $response,
+            'url' => $leadUrl,
+        ]);
+        exit;
+    }
+
+    $resp = trim((string)$response);
+    $lower = strtolower($resp);
+    // Detectar éxito: la API puede devolver en español o inglés
+    $ok = (strpos($lower, 'successfully') !== false)
+        || (strpos($lower, 'forwarded') !== false)
+        || (strpos($lower, 'remitida') !== false)
+        || (strpos($lower, 'contact') !== false);
+
+    if ($ok) {
         echo json_encode(['success' => true, 'message' => '¡Mensaje enviado correctamente!']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error al enviar el mensaje. Inténtalo de nuevo.']);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Error al enviar el mensaje. Inténtalo de nuevo.',
+            'upstream' => $resp,
+        ]);
     }
     exit;
 }
