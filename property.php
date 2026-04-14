@@ -11,6 +11,7 @@
     href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOl2lQivaauMAu-gpUI_-fCekiBaWyAxY&libraries=places" async defer></script>
 </head>
 
 <body>

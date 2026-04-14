@@ -100,6 +100,11 @@ class PropertyDetailView {
           ${this.renderFeatures(property.features)}
         </div>
 
+        <div class="property-detail__map">
+          <h4>Ubicación</h4>
+          <div id="property-map" style="width: 100%; height: 400px; background: #f0f0f0; border-radius: 8px;"></div>
+        </div>
+
         <div class="property-detail__contact">
           <h3>Contactar</h3>
           <p>¿Te interesa esta propiedad? Rellena el formulario y te contactaremos.</p>
@@ -144,6 +149,57 @@ class PropertyDetailView {
 
     this.bindGalleryEvents();
     this.bindContactForm(property.reference);
+    this.initMap(property);
+  }
+
+  initMap(property) {
+    const mapContainer = document.getElementById("property-map");
+    if (!mapContainer) return;
+
+    if (typeof google === "undefined" || !google.maps) {
+      mapContainer.innerHTML =
+        "<p style='padding:20px;text-align:center;'>Cargando mapa...</p>";
+      setTimeout(() => this.initMap(property), 1000);
+      return;
+    }
+
+    const address = [
+      property.location,
+      property.subLocation,
+      property.area,
+      property.province,
+      "España",
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    const geocoder = new google.maps.Geocoder();
+
+    geocoder.geocode({ address }, (results, status) => {
+      if (status === "OK" && results[0]) {
+        const location = results[0].geometry.location;
+        const map = new google.maps.Map(mapContainer, {
+          center: location,
+          zoom: 14,
+          styles: [
+            {
+              featureType: "poi",
+              elementType: "labels",
+              stylers: [{ visibility: "off" }],
+            },
+          ],
+        });
+
+        new google.maps.Marker({
+          position: location,
+          map: map,
+          title: property.location || property.type,
+          animation: google.maps.Animation.DROP,
+        });
+      } else {
+        mapContainer.innerHTML = `<p style='padding:20px;text-align:center;'>No se pudo cargar el mapa para: ${address}</p>`;
+      }
+    });
   }
 
   renderError(message) {
