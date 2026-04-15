@@ -4,7 +4,7 @@ class PropertyDetailView {
     this.defaultImage = "img/property-placeholder.svg";
   }
 
-  render(property) {
+  render(property, dateRanges = null) {
     if (!this.container) return;
 
     if (!property) {
@@ -14,6 +14,8 @@ class PropertyDetailView {
 
     const zone =
       property.subLocation || property.location || property.area || "";
+
+    const hasRental = property.rentalPeriod && property.rentalPeriod !== "";
 
     const images =
       property.images && property.images.length > 0
@@ -87,6 +89,21 @@ class PropertyDetailView {
                 `
                 }
               </span>
+              ${
+                hasRental
+                  ? `
+                <button type="button" class="availability-toggle-btn" id="availabilityToggleBtn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  Ver disponibilidad
+                </button>
+              `
+                  : ""
+              }
             </div>
             <div class="property-detail__views">
               <span>Ver propiedad</span>
@@ -115,6 +132,23 @@ class PropertyDetailView {
               ${property.subLocation ? this.renderDetailItem("Sububicación", property.subLocation) : ""}
             </div>
           </div>
+
+          ${
+            hasRental
+              ? `
+            <div id="availabilityModal" class="modal-overlay">
+              <div class="modal-content availability-modal">
+                <button class="modal-close" id="closeAvailabilityModal">&times;</button>
+                <h3>Disponibilidad</h3>
+                <p class="availability-modal-info">Fechas ya reservadas para esta propiedad:</p>
+                <div class="availability-modal-ranges" id="availabilityModalRanges">
+                  ${dateRanges && Object.keys(dateRanges).length > 0 ? this.renderAvailabilityContent(dateRanges) : '<p class="availability-available">Esta propiedad no tiene reservas próximas. ¡Está disponible!</p>'}
+                </div>
+              </div>
+            </div>
+          `
+              : ""
+          }
 
           ${this.renderFeatures(property.features)}
         </div>
@@ -173,6 +207,7 @@ class PropertyDetailView {
     this.bindContactForm(property.reference);
     this.initMap(property);
     this.bindModalEvents();
+    this.bindAvailabilityEvents();
   }
 
   bindModalEvents() {
@@ -388,5 +423,242 @@ class PropertyDetailView {
         submitBtn.textContent = "Enviar mensaje";
       }
     });
+  }
+
+  renderError(message) {
+    if (!this.container) return;
+    this.container.innerHTML = `
+      <div class="property-detail__error">
+        <p>${message}</p>
+        <a href="index.php" class="sc_button">Volver</a>
+      </div>
+    `;
+  }
+
+  renderLoading() {
+    if (!this.container) return;
+    this.container.innerHTML = `
+      <div class="property-detail__loading">
+        <div class="loader"></div>
+        <p>Cargando propiedad...</p>
+      </div>
+    `;
+  }
+
+  renderDetailItem(label, value) {
+    if (!value || value === 0 || value === "") return "";
+    return `
+      <div class="property-detail__detail-item">
+        <span class="property-detail__label">${label}:</span>
+        <span class="property-detail__data">${value}</span>
+      </div>
+    `;
+  }
+
+  renderFeatures(features) {
+    if (!features || Object.keys(features).length === 0) return "";
+
+    const allFeatures = [];
+    Object.values(features).forEach((values) => {
+      if (Array.isArray(values)) {
+        allFeatures.push(...values);
+      }
+    });
+
+    if (allFeatures.length === 0) return "";
+
+    return `
+      <div class="property-detail__features">
+        <h4>Características</h4>
+        <div class="property-detail__features-list">
+          ${allFeatures.map((f) => `<span class="property-detail__feature">${f}</span>`).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  getPriceLabel(property) {
+    const filter = parseInt(
+      new URLSearchParams(window.location.search).get("filter") || "1",
+    );
+    if (filter === 3) return "/mensual";
+    if (filter === 4) return "/temporada";
+    return "";
+  }
+
+  formatPrice(price) {
+    return new Intl.NumberFormat("es-ES").format(price);
+  }
+
+  bindGalleryEvents() {
+    const thumbs = this.container.querySelectorAll(".property-detail__thumb");
+    const featured = this.container.querySelector(
+      ".property-detail__featured img",
+    );
+
+    thumbs.forEach((thumb) => {
+      thumb.addEventListener("click", () => {
+        thumbs.forEach((t) => t.classList.remove("is-active"));
+        thumb.classList.add("is-active");
+        const img = thumb.querySelector("img");
+        if (featured && img) {
+          featured.src = img.src;
+        }
+      });
+    });
+  }
+
+  bindContactForm(reference) {
+    const form = document.getElementById("contact-form");
+    const messageDiv = document.getElementById("contact-form-message");
+
+    if (!form) return;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = {
+        action: "registerLead",
+        ref: formData.get("ref"),
+        name: formData.get("name"),
+        surname: formData.get("surname"),
+        email: formData.get("email"),
+        phone: formData.get("phone"),
+        message: formData.get("message"),
+      };
+
+      const submitBtn = form.querySelector(".contact-form__submit");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Enviando...";
+      messageDiv.innerHTML = "";
+
+      try {
+        const response = await fetch("api/config.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams(data).toString(),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          messageDiv.innerHTML =
+            '<div class="contact-form__success">¡Mensaje enviado correctamente! Te contactaremos pronto.</div>';
+          form.reset();
+        } else {
+          messageDiv.innerHTML = `<div class="contact-form__error">${result.message || "Error al enviar el mensaje. Inténtalo de nuevo."}</div>`;
+        }
+      } catch (error) {
+        messageDiv.innerHTML =
+          '<div class="contact-form__error">Error de conexión. Inténtalo de nuevo.</div>';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Enviar mensaje";
+      }
+    });
+  }
+
+  renderAvailability(dateRanges) {
+    if (!dateRanges || Object.keys(dateRanges).length === 0) {
+      return `
+        <div class="property-detail__availability" id="availabilitySection">
+          <h4>Disponibilidad</h4>
+          <p class="availability-available">Esta propiedad no tiene reservas próximas. ¡Está disponible!</p>
+        </div>
+      `;
+    }
+
+    const ranges = [];
+    for (const [start, end] of Object.entries(dateRanges)) {
+      ranges.push({ start, end });
+    }
+    ranges.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+    const formatDate = (d) => {
+      const date = new Date(d);
+      return date.toLocaleDateString("es-ES", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    };
+
+    return `
+      <div class="property-detail__availability" id="availabilitySection">
+        <h4>Disponibilidad</h4>
+        <p class="availability-info">Fechas ya reservadas:</p>
+        <div class="availability-ranges">
+          ${ranges
+            .map(
+              (r) => `
+            <span class="availability-range">
+              <span class="availability-date">${formatDate(r.start)}</span>
+              <span class="availability-separator">-</span>
+              <span class="availability-date">${formatDate(r.end)}</span>
+            </span>
+          `,
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  renderAvailabilityContent(dateRanges) {
+    const ranges = [];
+    for (const [start, end] of Object.entries(dateRanges)) {
+      ranges.push({ start, end });
+    }
+    ranges.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+    const formatDate = (d) => {
+      const date = new Date(d);
+      return date.toLocaleDateString("es-ES", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    };
+
+    return ranges
+      .map(
+        (r) => `
+      <span class="availability-range">
+        <span class="availability-date">${formatDate(r.start)}</span>
+        <span class="availability-separator">-</span>
+        <span class="availability-date">${formatDate(r.end)}</span>
+      </span>
+    `,
+      )
+      .join("");
+  }
+
+  bindAvailabilityEvents() {
+    const toggleBtn = document.getElementById("availabilityToggleBtn");
+    const modal = document.getElementById("availabilityModal");
+    const closeBtn = document.getElementById("closeAvailabilityModal");
+
+    if (toggleBtn && modal) {
+      toggleBtn.addEventListener("click", () => {
+        modal.classList.add("is-open");
+      });
+    }
+
+    if (closeBtn && modal) {
+      closeBtn.addEventListener("click", () => {
+        modal.classList.remove("is-open");
+      });
+    }
+
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.classList.remove("is-open");
+        }
+      });
+    }
   }
 }

@@ -243,6 +243,21 @@ class PropertyModel {
     return features;
   }
 
+  async fetchBookingCalendar(refId, startDate = "", endDate = "") {
+    const params = new URLSearchParams({
+      action: "bookingCalendar",
+      ref: refId,
+    });
+    if (startDate) params.append("start", startDate);
+    if (endDate) params.append("end", endDate);
+
+    const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    const data = await response.json();
+    return data?.DateRanges || {};
+  }
+
   translateStatus(status) {
     return this.translations.status[status] || status;
   }

@@ -34,7 +34,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (e) {
       // ignore stringify errors
     }*/
-    detailView.render(property);
+
+    let dateRanges = null;
+    if (property.rentalPeriod && property.rentalPeriod !== "") {
+      try {
+        const today = new Date();
+        const nextYear = new Date(
+          today.getFullYear() + 1,
+          today.getMonth(),
+          today.getDate(),
+        );
+        const startStr = today.toISOString().split("T")[0];
+        const endStr = nextYear.toISOString().split("T")[0];
+        dateRanges = await model.fetchBookingCalendar(
+          property.reference,
+          startStr,
+          endStr,
+        );
+      } catch (e) {
+        console.warn("No se pudo cargar disponibilidad:", e);
+      }
+    }
+
+    detailView.render(property, dateRanges);
   } catch (error) {
     console.error("Error loading property:", error);
     detailView.renderError("Error al cargar la propiedad");

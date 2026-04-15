@@ -83,6 +83,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
         $u = "$apiBaseUrl/SearchPropertyTypes?" . http_build_query($baseParams);
     } elseif ($action === 'features') {
         $u = "$apiBaseUrl/SearchFeatures?" . http_build_query($baseParams);
+    } elseif ($action === 'bookingCalendar') {
+        $refId = isset($_GET['ref']) ? $_GET['ref'] : '';
+        $startDate = isset($_GET['start']) ? $_GET['start'] : '';
+        $endDate = isset($_GET['end']) ? $_GET['end'] : '';
+
+        if (empty($refId)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Ref ID requerido']);
+            exit;
+        }
+
+        $baseParams['P_RefId'] = $refId;
+        if (!empty($startDate)) {
+            $baseParams['P_StartDate'] = $startDate;
+        }
+        if (!empty($endDate)) {
+            $baseParams['P_EndDate'] = $endDate;
+        }
+
+        $u = "$apiBaseUrl/BookingCalendar?" . http_build_query($baseParams);
     } else {
         http_response_code(400);
         echo json_encode(['error' => 'Acción no válida']);

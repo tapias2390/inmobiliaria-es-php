@@ -792,6 +792,75 @@ body {
   color: #059669;
 }
 
+.availability-available {
+  color: #059669;
+  font-weight: 500;
+  margin: 0;
+}
+
+.availability-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #fee2e2;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #991b1b;
+}
+
+.availability-date {
+  font-weight: 500;
+}
+
+.availability-separator {
+  color: #991b1b;
+}
+
+.availability-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+  padding: 10px 16px;
+  background: #dc2626 !important;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.availability-toggle-btn:hover {
+  background: #b91c1c !important;
+}
+
+.availability-modal {
+  max-width: 500px;
+  padding: 30px;
+}
+
+.availability-modal h3 {
+  margin: 0 0 15px;
+  font-size: 22px;
+  color: #1f2937;
+}
+
+.availability-modal-info {
+  color: #6b7280;
+  margin: 0 0 20px;
+}
+
+.availability-modal-ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .properties_price_label {
   font-size: 18px;
   font-weight: 600;
