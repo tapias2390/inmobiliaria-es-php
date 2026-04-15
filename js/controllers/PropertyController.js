@@ -5,7 +5,7 @@ class PropertyController {
     this.paginationView = paginationView;
     this.currentFilter = 1;
     this.currentPropertyType = "";
-    this.currentSearchFilters = {};
+    this.currentSearchFilters = { sortType: "2" };
     this.currentPage = 1;
     this.isLoading = false;
   }

@@ -11,7 +11,7 @@ class SearchFiltersView {
       builtMax: "",
       beds: "",
       baths: "",
-      sortType: "",
+      sortType: "2",
       newDevs: false,
     };
     this.render();
