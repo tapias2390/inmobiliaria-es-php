@@ -86,7 +86,7 @@ class PropertyView {
     const imageUrl = property.mainImage || this.defaultImage;
     const title = `${property.type} ${property.location ? " - " + property.location : ""}`;
     const currencySymbol =
-      property.currency === "EUR" ? "£" : property.currency || "";
+      property.currency === "EUR" ? "€" : property.currency || "";
     const detailUrl = `property.php?ref=${property.reference}&filter=${this.getCurrentFilter()}`;
     const zone =
       property.subLocation || property.location || property.area || "";

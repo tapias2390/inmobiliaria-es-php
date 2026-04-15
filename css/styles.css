@@ -818,7 +818,7 @@ body {
 }
 
 .availability-toggle-btn {
-  display: inline-flex;
+  display: none !important;
   align-items: center;
   gap: 6px;
   margin-left: 12px;
