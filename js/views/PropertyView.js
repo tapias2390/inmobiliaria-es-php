@@ -139,8 +139,26 @@ class PropertyView {
                         </div>
                         <div class="sc_properties_item_price">
                             <span class="properties_price">
-                                <span class="properties_price_label properties_price_before">${currencySymbol}</span>
-                                <span class="properties_price_data properties_price1">${this.formatPriceNumber(property.price)}</span>
+                                ${
+                                  property.rentalPeriod
+                                    ? `
+                                    ${
+                                      property.rentalPrice1 > 0
+                                        ? `
+                                        <span class="rental-price">${currencySymbol}${this.formatPriceNumber(property.rentalPrice1)} - ${currencySymbol}${this.formatPriceNumber(property.rentalPrice2)}</span>
+                                        <span class="properties_price_after">${property.rentalPeriod === "Week" ? "/semana" : property.rentalPeriod === "Month" ? "/mes" : ""}</span>
+                                    `
+                                        : `
+                                        <span class="properties_price_label properties_price_before">${currencySymbol}</span>
+                                        <span class="properties_price_data properties_price1">${this.formatPriceNumber(property.price)}</span>
+                                    `
+                                    }
+                                `
+                                    : `
+                                    <span class="properties_price_label properties_price_before">${currencySymbol}</span>
+                                    <span class="properties_price_data properties_price1">${this.formatPriceNumber(property.price)}</span>
+                                `
+                                }
                             </span>
                         </div>
                         <div class="sc_properties_item_options">

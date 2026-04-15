@@ -780,6 +780,18 @@ body {
   margin: 14px 0 18px;
 }
 
+.sc_properties_item_price .rental-price {
+  font-size: 28px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.sc_properties_item_price .properties_price_after {
+  font-size: 14px;
+  font-weight: 400;
+  color: #059669;
+}
+
 .properties_price_label {
   font-size: 18px;
   font-weight: 600;
@@ -1188,6 +1200,18 @@ body {
 }
 
 .property-detail__price .properties_price_after {
+  font-size: 14px;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.rental-price {
+  font-size: 24px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.properties_price .properties_price_after {
   font-size: 14px;
   font-weight: 400;
   color: #6b7280;

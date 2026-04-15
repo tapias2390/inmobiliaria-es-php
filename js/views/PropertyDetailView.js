@@ -74,9 +74,18 @@ class PropertyDetailView {
           <div class="property-detail__meta">
             <div class="property-detail__price">
               <span class="properties_price">
-                <span class="properties_price_label">${currencySymbol}</span>
-                <span class="properties_price_data">${this.formatPrice(property.price)}</span>
-                ${priceLabel ? `<span class="properties_price_after">${priceLabel}</span>` : ""}
+                ${
+                  property.rentalPeriod
+                    ? `
+                  ${property.rentalPrice1 > 0 ? `<span class="rental-price">${currencySymbol}${this.formatPrice(property.rentalPrice1)} - ${currencySymbol}${this.formatPrice(property.rentalPrice2)}</span>` : `<span class="properties_price_label">${currencySymbol}</span><span class="properties_price_data">${this.formatPrice(property.price)}</span>`}
+                  <span class="properties_price_after">${property.rentalPeriod === "Week" ? "/semana" : property.rentalPeriod === "Month" ? "/mes" : ""}</span>
+                `
+                    : `
+                  <span class="properties_price_label">${currencySymbol}</span>
+                  <span class="properties_price_data">${this.formatPrice(property.price)}</span>
+                  ${priceLabel ? `<span class="properties_price_after">${priceLabel}</span>` : ""}
+                `
+                }
               </span>
             </div>
             <div class="property-detail__views">

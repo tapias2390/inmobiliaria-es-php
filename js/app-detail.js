@@ -25,6 +25,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     const property = await model.fetchPropertyByReference(reference, filter);
+    /*console.log("[PropertyDetail] property:", property);
+    try {
+      console.log(
+        "[PropertyDetail] property (json):",
+        JSON.stringify(property, null, 2),
+      );
+    } catch (e) {
+      // ignore stringify errors
+    }*/
     detailView.render(property);
   } catch (error) {
     console.error("Error loading property:", error);

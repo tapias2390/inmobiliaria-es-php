@@ -148,9 +148,12 @@ class PropertyModel {
       status: this.translateStatus(property.Status?.system || "N/A"),
       bedrooms: Number(property.Bedrooms) || 0,
       bathrooms: Number(property.Bathrooms) || 0,
-      price: Number(property.Price) || 0,
+      price: this.extractPrice(property),
       currency: property.Currency || "EUR",
       originalPrice: property.OriginalPrice || property.Price,
+      rentalPrice1: Number(property.RentalPrice1) || 0,
+      rentalPrice2: Number(property.RentalPrice2) || 0,
+      rentalPeriod: property.RentalPeriod || "",
       built: Number(property.Built) || 0,
       terrace: Number(property.Terrace) || 0,
       gardenPlot: Number(property.GardenPlot) || 0,
@@ -162,6 +165,59 @@ class PropertyModel {
       mainImage: property.MainImage || this.extractImages(property)[0] || "",
       features: this.extractFeatures(property.PropertyFeatures),
     }));
+  }
+
+  extractPrice(property) {
+    const base = Number(property?.Price) || 0;
+    if (base > 0) return base;
+
+    const candidates = [];
+    const visited = new Set();
+
+    const visit = (node, parentKey = "") => {
+      if (node === null || node === undefined) return;
+
+      if (typeof node === "object") {
+        if (visited.has(node)) return;
+        visited.add(node);
+
+        if (Array.isArray(node)) {
+          node.forEach((x) => visit(x, parentKey));
+          return;
+        }
+
+        Object.entries(node).forEach(([k, v]) => {
+          const key = `${parentKey}.${String(k)}`;
+          visit(v, key);
+        });
+        return;
+      }
+
+      const keyLower = String(parentKey || "").toLowerCase();
+      if (
+        !(
+          keyLower.includes("price") ||
+          keyLower.includes("rent") ||
+          keyLower.includes("rental")
+        )
+      ) {
+        return;
+      }
+
+      const n =
+        typeof node === "number"
+          ? node
+          : Number(String(node).replace(/[^0-9.-]/g, ""));
+      if (Number.isFinite(n) && n > 0) {
+        candidates.push(n);
+      }
+    };
+
+    visit(property, "property");
+
+    if (candidates.length === 0) return 0;
+    candidates.sort((a, b) => a - b);
+    return candidates[0];
   }
 
   stripHtml(html) {
@@ -210,7 +266,10 @@ class PropertyModel {
     }
 
     const data = await response.json();
-    //console.log("API Response:", data);
+    console.log(
+      "[PropertyDetail] raw api property:",
+      data?.Property?.[0] || null,
+    );
     const properties = this.transformProperties(data);
     return properties.length > 0 ? properties[0] : null;
   }
