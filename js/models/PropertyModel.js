@@ -281,10 +281,10 @@ class PropertyModel {
     }
 
     const data = await response.json();
-    console.log(
+    /* console.log(
       "[PropertyDetail] raw api property:",
       data?.Property?.[0] || null,
-    );
+    );*/
     const properties = this.transformProperties(data);
     return properties.length > 0 ? properties[0] : null;
   }

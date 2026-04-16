@@ -93,7 +93,7 @@ class PropertyController {
         "[SearchProperties] Propiedades cargadas:",
         result.properties.length,
       );
-      console.log("Filtro (p_agency_filterid):", this.currentFilter);
+      /*console.log("Filtro (p_agency_filterid):", this.currentFilter);
       console.log("Tipo propiedad:", this.currentPropertyType || "(todos)");
       console.log("Filtros extra:", this.currentSearchFilters);
       console.log("QueryInfo:", result.pagination);*/
