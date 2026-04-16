@@ -45,11 +45,18 @@ class SearchFiltersView {
 
           <div class="search-filters__field">
             <label for="sf-location">Ubicación</label>
-            <select id="sf-location" name="location" ${
-              locations.length === 0 ? "disabled" : ""
-            }>
-              ${this.selectOptions(locations, this.state.location, "Todas")}
-            </select>
+            <input 
+              id="sf-location" 
+              name="location" 
+              type="text" 
+              list="location-datalist"
+              value="${this.escape(this.state.location)}"
+              placeholder="Escribe una ubicación..."
+              autocomplete="off"
+            />
+            <datalist id="location-datalist">
+              ${locations.map((loc) => `<option value="${this.escape(loc)}">`).join("")}
+            </datalist>
           </div>
 
           <div class="search-filters__field">
@@ -188,7 +195,7 @@ class SearchFiltersView {
       if (!resetBtn) return;
 
       this.state = {
-        province: "",
+        province: "Málaga",
         location: "",
         minPrice: "",
         maxPrice: "",
@@ -196,7 +203,7 @@ class SearchFiltersView {
         builtMax: "",
         beds: "",
         baths: "",
-        sortType: "",
+        sortType: "2",
         newDevs: false,
       };
 
