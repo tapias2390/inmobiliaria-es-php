@@ -12,6 +12,22 @@ body {
 body {
   font-family: "Roboto", Arial, sans-serif;
   min-height: 100vh;
+  position: relative;
+  background: #000;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  background-image: url("../img/fondobody.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.25;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .main {
@@ -1140,8 +1156,8 @@ body {
 }
 
 .trx_addons_message_box_info {
-  background: #f0f9ff;
-  color: #0066cc;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
 }
 
 .trx_addons_message_box_error {
@@ -1969,8 +1985,12 @@ body {
   margin-top: 30px;
   padding: 20px 0;
   text-align: center;
-  background: #fff;
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 8px;
+}
+
+#pagination-container:empty {
+  display: none;
 }
 
 .pagination__summary {

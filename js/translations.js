@@ -53,7 +53,7 @@ const translations = {
     footerDesc:
       "Gestionamos todas las áreas: compra, venta, alquiler, reformas, gestión de propiedades, licencias de obra y de apertura.",
     footerRights: "Derechos reservados",
-    menuPropiedades: "Propiedades",
+    menuPropiedades: "Propiedades/Compra",
     menuAlquiler: "Alquiler",
     menuCompra: "Compra",
     menuContacto: "Contacto",
