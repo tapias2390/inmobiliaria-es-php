@@ -63,9 +63,9 @@
         <div id="search-filters-container"></div>
         <div id="features-filter-container"></div>
       </div>
-      <div class="filter-modal__footer">
+      <!-8.-<div class="filter-modal__footer">
         <button type="button" class="sc_button" id="filterModalApply" data-i18n="aplicarFiltros">Aplicar Filtros</button>
-      </div>
+      </div>-->
     </div>
   </div>
 

@@ -53,10 +53,8 @@
     <nav class="nav" id="nav">
       <ul class="menu">
         <li><a href="https://wbrealtygroup.es/" data-i18n="menuInicio">Inicio</a></li>
-        <li><a href="https://wbrealtygroup.es/about-us/" data-i18n="menuEmpresa">Nosotros</a></li>
         <li><a href="https://wbrealtygroup.es/project-development/" data-i18n="menuProjectDev">Project Development</a></li>
         <li><a href="https://wbrealtygroup.es/propiedades/" data-i18n="menuPropiedades">Propiedades</a></li>
-        <li><a href="https://wbrealtygroup.es/alquiler/" data-i18n="menuAlquiler">Alquiler</a></li>
         <li class="dropdown">
           <a href="#" data-i18n="menuServicios">Servicios</a>
           <ul class="submenu">
