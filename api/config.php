@@ -23,11 +23,25 @@ loadEnv(__DIR__ . '/../.env');
 
 header('Content-Type: application/json; charset=utf-8');
 
+// Endpoint para cambiar idioma
+if (isset($_GET['action']) && $_GET['action'] === 'setLanguage') {
+    $newLang = isset($_GET['lang']) ? $_GET['lang'] : 'es';
+    $validLangs = ['es', 'en', 'de', 'fr', 'nl', 'da', 'ru', 'sv', 'pl', 'no', 'tr', 'fi', 'hu'];
+    if (!in_array($newLang, $validLangs)) {
+        $newLang = 'es';
+    }
+    setcookie('site_lang', $newLang, time() + (86400 * 30), '/'); // 30 días
+    echo json_encode(['success' => true, 'language' => $newLang]);
+    exit;
+}
+
+// Obtener idioma de cookie o .env
+$langCode = isset($_COOKIE['site_lang']) ? $_COOKIE['site_lang'] : (getenv('LANGUAGE') ?: 'es');
+
 $apiBaseUrl = getenv('API_BASE_URL') ?: 'https://webapi.resales-online.com/V6';
 $apiKey = getenv('API_KEY');
 $agencyId = getenv('AGENCY_ID');
 $filterId = getenv('FILTER_ID') ?: '1';
-$langCode = getenv('LANGUAGE') ?: 'es';
 $langMap = [
     'es' => '2',
     'en' => '1',

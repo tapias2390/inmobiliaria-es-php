@@ -78,6 +78,29 @@ body {
   opacity: 0.95;
 }
 
+/* Language Selector */
+.language-selector {
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 15px;
+  cursor: pointer;
+  outline: none;
+}
+
+.language-selector:hover {
+  background: #444;
+  border-color: #777;
+}
+
+.language-selector option {
+  background: #333;
+  color: #fff;
+}
+
 /* HEADER */
 .header {
   background: white;
