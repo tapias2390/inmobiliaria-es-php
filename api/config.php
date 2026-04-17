@@ -26,11 +26,17 @@ header('Content-Type: application/json; charset=utf-8');
 // Endpoint para cambiar idioma
 if (isset($_GET['action']) && $_GET['action'] === 'setLanguage') {
     $newLang = isset($_GET['lang']) ? $_GET['lang'] : 'es';
-    $validLangs = ['es', 'en', 'de', 'fr', 'nl', 'da', 'ru', 'sv', 'pl', 'no', 'tr', 'fi', 'hu'];
+    $validLangs = ['es', 'en', 'de', 'fr', 'nl', 'it', 'pt', 'da', 'ru', 'sv', 'pl', 'no', 'tr', 'fi', 'hu'];
     if (!in_array($newLang, $validLangs)) {
         $newLang = 'es';
     }
-    setcookie('site_lang', $newLang, time() + (86400 * 30), '/'); // 30 días
+    // Establecer cookie con más atributos para compatibilidad
+    setcookie('site_lang', $newLang, [
+        'expires' => time() + (86400 * 30),
+        'path' => '/',
+        'secure' => false,
+        'samesite' => 'Lax'
+    ]);
     echo json_encode(['success' => true, 'language' => $newLang]);
     exit;
 }
@@ -48,6 +54,8 @@ $langMap = [
     'de' => '3',
     'fr' => '4',
     'nl' => '5',
+    'it' => '12',
+    'pt' => '15',
     'da' => '6',
     'ru' => '7',
     'sv' => '8',

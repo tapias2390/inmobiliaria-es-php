@@ -70,7 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("search-filters-container");
     if (container) {
       container.innerHTML =
-        '<div style="text-align:center;padding:20px;"><span class="loader"></span><br>Cargando...</div>';
+        '<div style="text-align:center;padding:20px;"><span class="loader"></span><br>' +
+        t("cargando") +
+        "</div>";
     }
 
     // Recargar locations al aplicar filtros

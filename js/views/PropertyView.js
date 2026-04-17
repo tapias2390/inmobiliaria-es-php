@@ -61,7 +61,7 @@ class PropertyView {
     this.container.innerHTML = `
             <div class="trx_addons_message_box trx_addons_message_box_info">
                 <div class="loader"></div>
-                <p>Cargando propiedades...</p>
+                <p>${t("cargando")}</p>
             </div>
         `;
   }
@@ -163,17 +163,17 @@ class PropertyView {
                         </div>
                         <div class="sc_properties_item_options">
                             <div class="sc_properties_item_row sc_properties_item_row_info" style="display:flex;flex-wrap:wrap;gap:8px;">
-                                ${this.createDetailItem("province", property.province, "Provincia:")}
-                                ${this.createDetailItem("zone", zone, "Zona:")}
-                                ${this.createDetailItem("size", totalSize, "Tamaño (m²):", "m²")}
+                                ${this.createDetailItem("province", property.province, t("provincia") + ":")}
+                                ${this.createDetailItem("zone", zone, t("zona") + ":")}
+                                ${this.createDetailItem("size", totalSize, t("tamano") + ":", t("metrosCuadrados"))}
                             </div>
                             <div class="sc_properties_item_footer">
                                 <div class="sc_properties_item_button sc_item_button">
-                                    <a href="${detailUrl}" class="sc_button sc_button_with_icon">VER PROPIEDAD <span class="sc_button__arrow">-></span></a>
+                                    <a href="${detailUrl}" class="sc_button sc_button_with_icon">${t("verPropiedad")} <span class="sc_button__arrow">${t("flecha")}</span></a>
                                 </div>
                                 <div class="sc_properties_item_meta">
                                     <div class="sc_properties_item_status">
-                                        <span class="sc_properties_item_status_text">${property.status}</span>
+                                        <span class="sc_properties_item_status_text">${t(property.status)}</span>
                                     </div>
                                    
                                 </div>

@@ -29,9 +29,9 @@ class PropertyDetailView {
     this.container.innerHTML = `
       <div class="property-detail">
         <div class="property-detail__breadcrumb">
-          <a href="index.php">Home</a>
+          <a href="index.php">${t("menuInicio")}</a>
           <span>/</span>
-          <a href="index.php">Propiedades</a>
+          <a href="index.php">${t("menuPropiedades")}</a>
           <span>/</span>
           <span class="current">${property.type} en ${property.location}</span>
         </div>
@@ -59,13 +59,13 @@ class PropertyDetailView {
         <div class="property-detail__title-wrap">
           <h1 class="property-detail__title">
             ${property.type} en ${property.location}
-            <span class="property-detail__status">${property.status}</span>
+            <span class="property-detail__status">${t(property.status)}</span>
             <button type="button" class="contact-button-small" id="openContactModal">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                 <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
-              Contactar
+              ${t("contactar")}
             </button>
           </h1>
           <div class="property-detail__address">
@@ -99,37 +99,37 @@ class PropertyDetailView {
                     <line x1="8" y1="2" x2="8" y2="6"></line>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                   </svg>
-                  Ver disponibilidad
+                  ${t("verDisponibilidad")}
                 </button>
               `
                   : ""
               }
             </div>
             <div class="property-detail__views">
-              <span>Ver propiedad</span>
+              <span>${t("verPropiedad")}</span>
             </div>
           </div>
         </div>
 
         <div class="property-detail__content">
           <div class="property-detail__description">
-            <h3>Descripción</h3>
-            <p>${property.description || "No hay descripción disponible."}</p>
+            <h3>${t("descripcion")}</h3>
+            <p>${property.description || t("sinDescripcion")}</p>
           </div>
 
           <div class="property-detail__details">
-            <h4>Detalles</h4>
+            <h4>${t("detalles")}</h4>
             <div class="property-detail__details-grid">
-              ${this.renderDetailItem("Área", `${property.built} m²`)}
-              ${this.renderDetailItem("Dormitorios", property.bedrooms)}
-              ${this.renderDetailItem("Baños", property.bathrooms)}
-              ${this.renderDetailItem("Estacionamiento", property.parking)}
-              ${property.terrace > 0 ? this.renderDetailItem("Terraza", `${property.terrace} m²`) : ""}
-              ${property.pool > 0 ? this.renderDetailItem("Piscina", "Sí") : ""}
-              ${property.garden > 0 ? this.renderDetailItem("Jardín", "Sí") : ""}
-              ${zone ? this.renderDetailItem("Zona", zone) : ""}
-              ${property.province ? this.renderDetailItem("Provincia", property.province) : ""}
-              ${property.subLocation ? this.renderDetailItem("Sububicación", property.subLocation) : ""}
+              ${this.renderDetailItem(t("area"), `${property.built} m²`)}
+              ${this.renderDetailItem(t("dormitorios"), property.bedrooms)}
+              ${this.renderDetailItem(t("banos"), property.bathrooms)}
+              ${this.renderDetailItem(t("estacionamiento"), property.parking)}
+              ${property.terrace > 0 ? this.renderDetailItem(t("terraza"), `${property.terrace} m²`) : ""}
+              ${property.pool > 0 ? this.renderDetailItem(t("piscina"), t("si")) : ""}
+              ${property.garden > 0 ? this.renderDetailItem(t("jardin"), t("si")) : ""}
+              ${zone ? this.renderDetailItem(t("zona"), zone) : ""}
+              ${property.province ? this.renderDetailItem(t("provincia"), property.province) : ""}
+              ${property.subLocation ? this.renderDetailItem(t("sububicacion"), property.subLocation) : ""}
             </div>
           </div>
 
@@ -139,10 +139,10 @@ class PropertyDetailView {
             <div id="availabilityModal" class="modal-overlay">
               <div class="modal-content availability-modal">
                 <button class="modal-close" id="closeAvailabilityModal">&times;</button>
-                <h3>Disponibilidad</h3>
-                <p class="availability-modal-info">Fechas ya reservadas para esta propiedad:</p>
+                <h3>${t("disponibilidad")}</h3>
+                <p class="availability-modal-info">${t("fechasReservadas")}</p>
                 <div class="availability-modal-ranges" id="availabilityModalRanges">
-                  ${dateRanges && Object.keys(dateRanges).length > 0 ? this.renderAvailabilityContent(dateRanges) : '<p class="availability-available">Esta propiedad no tiene reservas próximas. ¡Está disponible!</p>'}
+                  ${dateRanges && Object.keys(dateRanges).length > 0 ? this.renderAvailabilityContent(dateRanges) : '<p class="availability-available">' + t("noReservas") + "</p>"}
                 </div>
               </div>
             </div>
@@ -154,43 +154,43 @@ class PropertyDetailView {
         </div>
 
         <div class="property-detail__map">
-          <h4>Ubicación</h4>
+          <h4>${t("ubicacion")}</h4>
           <div id="property-map" style="width: 100%; height: 400px; background: #f0f0f0; border-radius: 8px;"></div>
         </div>
 
         <div id="contactModal" class="modal-overlay">
           <div class="modal-content">
             <button class="modal-close" id="closeContactModal">&times;</button>
-            <h3>Contactar</h3>
-            <p>¿Te interesa esta propiedad? Rellena el formulario y te contactaremos.</p>
+            <h3>${t("contactar")}</h3>
+            <p>${t("contactoTexto")}</p>
             <form id="contact-form" class="contact-form">
               <input type="hidden" name="ref" value="${property.reference}">
               <div class="contact-form__row">
                 <div class="contact-form__field">
-                  <label for="contact-name">Nombre *</label>
+                  <label for="contact-name">${t("nombre")} *</label>
                   <input type="text" id="contact-name" name="name" required>
                 </div>
                 <div class="contact-form__field">
-                  <label for="contact-surname">Apellido *</label>
+                  <label for="contact-surname">${t("apellido")} *</label>
                   <input type="text" id="contact-surname" name="surname" required>
                 </div>
               </div>
               <div class="contact-form__row">
                 <div class="contact-form__field">
-                  <label for="contact-email">Email *</label>
+                  <label for="contact-email">${t("email")} *</label>
                   <input type="email" id="contact-email" name="email" required>
                 </div>
                 <div class="contact-form__field">
-                  <label for="contact-phone">Teléfono</label>
+                  <label for="contact-phone">${t("telefono")}</label>
                   <input type="tel" id="contact-phone" name="phone">
                 </div>
               </div>
               <div class="contact-form__field">
-                <label for="contact-message">Mensaje *</label>
-                <textarea id="contact-message" name="message" rows="4" required>Estoy interesado en esta propiedad. Por favor, contacten conmigo.</textarea>
+                <label for="contact-message">${t("mensaje")} *</label>
+                <textarea id="contact-message" name="message" rows="4" required>${t("mensajeDefault")}</textarea>
               </div>
               <div class="contact-form__actions">
-                <button type="submit" class="sc_button contact-form__submit">Enviar mensaje</button>
+                <button type="submit" class="sc_button contact-form__submit">${t("enviarMensaje")}</button>
               </div>
               <div id="contact-form-message"></div>
             </form>
@@ -198,7 +198,7 @@ class PropertyDetailView {
         </div>
 
         <div class="property-detail__back">
-          <a href="index.php" class="sc_button">« Volver a propiedades</a>
+          <a href="index.php" class="sc_button">« ${t("volver")}</a>
         </div>
       </div>
     `;
@@ -245,7 +245,9 @@ class PropertyDetailView {
 
     if (typeof google === "undefined" || !google.maps) {
       mapContainer.innerHTML =
-        "<p style='padding:20px;text-align:center;'>Cargando mapa...</p>";
+        "<p style='padding:20px;text-align:center;'>" +
+        t("cargandoMapa") +
+        "</p>";
       setTimeout(() => this.initMap(property), 1000);
       return;
     }
@@ -294,7 +296,7 @@ class PropertyDetailView {
     this.container.innerHTML = `
       <div class="property-detail__error">
         <p>${message}</p>
-        <a href="index.php" class="sc_button">Volver</a>
+        <a href="index.php" class="sc_button">${t("volver")}</a>
       </div>
     `;
   }
@@ -304,7 +306,7 @@ class PropertyDetailView {
     this.container.innerHTML = `
       <div class="property-detail__loading">
         <div class="loader"></div>
-        <p>Cargando propiedad...</p>
+        <p>${t("cargandoDetalle")}</p>
       </div>
     `;
   }
@@ -333,7 +335,7 @@ class PropertyDetailView {
 
     return `
       <div class="property-detail__features">
-        <h4>Características</h4>
+        <h4>${t("caracteristicas")}</h4>
         <div class="property-detail__features-list">
           ${allFeatures.map((f) => `<span class="property-detail__feature">${f}</span>`).join("")}
         </div>
@@ -394,7 +396,7 @@ class PropertyDetailView {
 
       const submitBtn = form.querySelector(".contact-form__submit");
       submitBtn.disabled = true;
-      submitBtn.textContent = "Enviando...";
+      submitBtn.textContent = t("enviando");
       messageDiv.innerHTML = "";
 
       try {
@@ -410,17 +412,19 @@ class PropertyDetailView {
 
         if (result.success) {
           messageDiv.innerHTML =
-            '<div class="contact-form__success">¡Mensaje enviado correctamente! Te contactaremos pronto.</div>';
+            '<div class="contact-form__success">' +
+            t("mensajeEnviado") +
+            "</div>";
           form.reset();
         } else {
           messageDiv.innerHTML = `<div class="contact-form__error">${result.message || "Error al enviar el mensaje. Inténtalo de nuevo."}</div>`;
         }
       } catch (error) {
         messageDiv.innerHTML =
-          '<div class="contact-form__error">Error de conexión. Inténtalo de nuevo.</div>';
+          '<div class="contact-form__error">' + t("errorConexion") + "</div>";
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Enviar mensaje";
+        submitBtn.textContent = t("enviarMensaje");
       }
     });
   }
@@ -430,7 +434,7 @@ class PropertyDetailView {
     this.container.innerHTML = `
       <div class="property-detail__error">
         <p>${message}</p>
-        <a href="index.php" class="sc_button">Volver</a>
+        <a href="index.php" class="sc_button">${t("volver")}</a>
       </div>
     `;
   }
@@ -440,7 +444,7 @@ class PropertyDetailView {
     this.container.innerHTML = `
       <div class="property-detail__loading">
         <div class="loader"></div>
-        <p>Cargando propiedad...</p>
+        <p>${t("cargandoDetalle")}</p>
       </div>
     `;
   }
@@ -469,7 +473,7 @@ class PropertyDetailView {
 
     return `
       <div class="property-detail__features">
-        <h4>Características</h4>
+        <h4>${t("caracteristicas")}</h4>
         <div class="property-detail__features-list">
           ${allFeatures.map((f) => `<span class="property-detail__feature">${f}</span>`).join("")}
         </div>
@@ -530,7 +534,7 @@ class PropertyDetailView {
 
       const submitBtn = form.querySelector(".contact-form__submit");
       submitBtn.disabled = true;
-      submitBtn.textContent = "Enviando...";
+      submitBtn.textContent = t("enviando");
       messageDiv.innerHTML = "";
 
       try {
@@ -546,17 +550,19 @@ class PropertyDetailView {
 
         if (result.success) {
           messageDiv.innerHTML =
-            '<div class="contact-form__success">¡Mensaje enviado correctamente! Te contactaremos pronto.</div>';
+            '<div class="contact-form__success">' +
+            t("mensajeEnviado") +
+            "</div>";
           form.reset();
         } else {
           messageDiv.innerHTML = `<div class="contact-form__error">${result.message || "Error al enviar el mensaje. Inténtalo de nuevo."}</div>`;
         }
       } catch (error) {
         messageDiv.innerHTML =
-          '<div class="contact-form__error">Error de conexión. Inténtalo de nuevo.</div>';
+          '<div class="contact-form__error">' + t("errorConexion") + "</div>";
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Enviar mensaje";
+        submitBtn.textContent = t("enviarMensaje");
       }
     });
   }
@@ -565,8 +571,8 @@ class PropertyDetailView {
     if (!dateRanges || Object.keys(dateRanges).length === 0) {
       return `
         <div class="property-detail__availability" id="availabilitySection">
-          <h4>Disponibilidad</h4>
-          <p class="availability-available">Esta propiedad no tiene reservas próximas. ¡Está disponible!</p>
+          <h4>${t("disponibilidad")}</h4>
+          <p class="availability-available">${t("noReservas")}</p>
         </div>
       `;
     }
@@ -588,8 +594,8 @@ class PropertyDetailView {
 
     return `
       <div class="property-detail__availability" id="availabilitySection">
-        <h4>Disponibilidad</h4>
-        <p class="availability-info">Fechas ya reservadas:</p>
+        <h4>${t("disponibilidad")}</h4>
+        <p class="availability-info">${t("fechasReservadas")}</p>
         <div class="availability-ranges">
           ${ranges
             .map(

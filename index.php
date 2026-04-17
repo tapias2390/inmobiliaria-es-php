@@ -21,7 +21,7 @@
     <div class="container">
       <section class="properties-section">
         <div class="properties-header">
-          <h1>Propiedades</h1>
+          <h1 data-i18n="propiedades">Propiedades</h1>
           <button type="button" class="filter-toggle-btn" id="filterToggleBtn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="4" y1="6" x2="20" y2="6"></line>
@@ -31,7 +31,7 @@
               <circle cx="16" cy="12" r="2" fill="currentColor"></circle>
               <circle cx="10" cy="18" r="2" fill="currentColor"></circle>
             </svg>
-            Filtros
+            <span data-i18n="filtros">Filtros</span>
           </button>
         </div>
 
@@ -49,7 +49,7 @@
     <div class="filter-modal__overlay" id="filterModalOverlay"></div>
     <div class="filter-modal__content">
       <div class="filter-modal__header">
-        <h2>Filtros</h2>
+        <h2 data-i18n="filtros">Filtros</h2>
         <button type="button" class="filter-modal__close" id="filterModalClose">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -64,12 +64,12 @@
         <div id="features-filter-container"></div>
       </div>
       <div class="filter-modal__footer">
-        <button type="button" class="sc_button" id="filterModalApply">Aplicar Filtros</button>
+        <button type="button" class="sc_button" id="filterModalApply" data-i18n="aplicarFiltros">Aplicar Filtros</button>
       </div>
     </div>
   </div>
 
-  <?php include 'partials/footer.html'; ?>
+  <?php include 'partials/footer.php'; ?>
 
   <script src="js/config.js"></script>
   <script src="js/models/PropertyModel.js"></script>

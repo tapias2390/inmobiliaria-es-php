@@ -26,7 +26,7 @@
     </div>
   </main>
 
-  <?php include 'partials/footer.html'; ?>
+  <?php include 'partials/footer.php'; ?>
 
   <script src="js/config.js"></script>
   <script src="js/models/PropertyModel.js"></script>
