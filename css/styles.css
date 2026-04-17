@@ -1280,6 +1280,10 @@ body::before {
 .property-detail {
   max-width: 1200px;
   margin: 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .property-detail__breadcrumb {
@@ -1912,6 +1916,7 @@ body::before {
   margin: 15px 0;
   background: #fff;
   padding: 10px 0;
+  border-radius: 10px;
 }
 
 /* Filtros organizados */
@@ -1985,7 +1990,6 @@ body::before {
   margin-top: 30px;
   padding: 20px 0;
   text-align: center;
-  background: rgba(0, 0, 0, 0.6);
   border-radius: 8px;
 }
 
