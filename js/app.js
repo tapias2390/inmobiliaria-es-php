@@ -122,7 +122,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })();
 
-  controller.init();
+  // Si hay parámetro ref en URL, aplicar el filtro después del init
+  // (si lo hacemos durante init, se ignora por isLoading)
+  const urlParams = new URLSearchParams(window.location.search);
+  const refParam = urlParams.get("ref");
+
+  controller.init().then(() => {
+    if (refParam) {
+      controller.setSearchFilters({ reference: refParam });
+    }
+  });
 
   // Modal de filtros (los filtros solo existen dentro del modal)
   const filterModalOverlay = document.getElementById("filterModalOverlay");

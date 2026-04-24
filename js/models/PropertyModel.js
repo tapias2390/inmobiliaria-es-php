@@ -66,25 +66,35 @@ class PropertyModel {
       "newDevs",
       "featuresMust",
       "featuresPrefer",
+      "reference",
     ];
+
+    // Mapeo de nombres de filtro a parámetros del backend PHP
+    // (api/config.php luego los traduce a parámetros de la API real)
+    const paramMap = {
+      reference: "refId",
+    };
 
     allowedExtra.forEach((k) => {
       if (!extraFilters || !(k in extraFilters)) return;
       const v = extraFilters[k];
       if (v === undefined || v === null || v === "") return;
+
+      const paramName = paramMap[k] || k;
+
       if (Array.isArray(v)) {
         const csv = v
           .map((x) => String(x))
           .filter(Boolean)
           .join(",");
-        if (csv) params.append(k, csv);
+        if (csv) params.append(paramName, csv);
         return;
       }
       if (typeof v === "boolean") {
-        if (v) params.append(k, "1");
+        if (v) params.append(paramName, "1");
         return;
       }
-      params.append(k, String(v));
+      params.append(paramName, String(v));
     });
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
@@ -135,10 +145,21 @@ class PropertyModel {
     };
   }
 
-  transformProperties(data) {
+  transformProperties(data, filterByStatus = true) {
     const properties = data.Property || [];
 
-    return properties.map((property) => ({
+    let filtered = properties;
+
+    // Filtrar propiedades no disponibles solo si se indica (para listado general)
+    if (filterByStatus) {
+      const availableStatuses = ["Available", "Under Offer"];
+      filtered = properties.filter((p) => {
+        const status = p.Status?.system || "N/A";
+        return availableStatuses.includes(status);
+      });
+    }
+
+    return filtered.map((property) => ({
       reference: property.Reference,
       location: property.Location,
       subLocation: property.SubLocation || "",
@@ -285,7 +306,8 @@ class PropertyModel {
       "[PropertyDetail] raw api property:",
       data?.Property?.[0] || null,
     );*/
-    const properties = this.transformProperties(data);
+    // Filtrar por status (solo disponibles)
+    const properties = this.transformProperties(data, true);
     return properties.length > 0 ? properties[0] : null;
   }
 

@@ -59,6 +59,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     detailView.render(property, dateRanges);
   } catch (error) {
     console.error("Error loading property:", error);
-    detailView.renderError("Error al cargar la propiedad");
+    detailView.renderError("Propiedad no disponible");
   }
 });

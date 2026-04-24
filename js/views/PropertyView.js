@@ -10,13 +10,13 @@ class PropertyView {
     return this.currentProperties;
   }
 
-  render(properties) {
+  render(properties, searchByReference = false) {
     if (!this.container) return;
 
     this.currentProperties = properties;
 
     if (properties.length === 0) {
-      this.renderEmpty();
+      this.renderEmpty(searchByReference);
       return;
     }
 
@@ -49,10 +49,17 @@ class PropertyView {
     this.removeLoadMore();
   }
 
-  renderEmpty() {
+  renderEmpty(searchByReference = false) {
+    const message = searchByReference
+      ? "La propiedad no se encuentra disponible"
+      : "No se encontraron propiedades.";
+
     this.container.innerHTML = `
             <div class="trx_addons_message_box trx_addons_message_box_error">
-                No se encontraron propiedades.
+                ${message}
+                <div style="margin-top:12px;">
+                  <button type="button" class="sc_button" onclick="window.location.href = 'index.php'">Ir al inicio</button>
+                </div>
             </div>
         `;
   }
@@ -115,6 +122,7 @@ class PropertyView {
                         </div>
                     </div>
                     <div class="sc_properties_item_info">
+                        <div class="sc_properties_item_ref">Ref: ${property.reference || "N/A"}</div>
                         <h5 class="sc_properties_item_title">
                             <a href="${detailUrl}">${title}</a>
                         </h5>

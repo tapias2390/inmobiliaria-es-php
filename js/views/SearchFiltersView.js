@@ -2,8 +2,11 @@ class SearchFiltersView {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
     this.locationsData = null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const refParam = (urlParams.get("ref") || "").toString().trim();
     this.state = {
       province: "Málaga",
+      reference: refParam,
       location: "",
       minPrice: "",
       maxPrice: "",
@@ -41,6 +44,19 @@ class SearchFiltersView {
             <select id="sf-province" name="province">
               ${this.selectOptions(provinces, this.state.province, "Todas")}
             </select>
+          </div>
+
+          <div class="search-filters__field" style="flex: 0 0 100%; max-width: 200px;">
+            <label for="sf-reference" style="color: #111827; font-weight: 600;">🔍 Referencia</label>
+            <input 
+              id="sf-reference" 
+              name="reference" 
+              type="text" 
+              value="${this.escape(this.state.reference || "")}"
+              placeholder="Ej: R1234567"
+              autocomplete="off"
+              style="border: 2px solid #111827; font-weight: 600;"
+            />
           </div>
 
           <div class="search-filters__field">
@@ -174,6 +190,7 @@ class SearchFiltersView {
 
       const filters = {
         province: (data.get("province") || "").toString().trim(),
+        reference: (data.get("reference") || "").toString().trim(),
         location: (data.get("location") || "").toString().trim(),
         minPrice: (data.get("minPrice") || "").toString().trim(),
         maxPrice: (data.get("maxPrice") || "").toString().trim(),
@@ -187,6 +204,16 @@ class SearchFiltersView {
 
       //console.log("DEBUG filtros enviados:", filters);
       this.state = { ...this.state, ...filters };
+
+      // Si hay búsqueda por referencia y no viene de URL, recargar con la referencia en la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      if (filters.reference && !urlParams.has("ref")) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("ref", filters.reference);
+        window.location.href = url.toString();
+        return;
+      }
+
       onChange(filters);
     });
 
@@ -196,6 +223,7 @@ class SearchFiltersView {
 
       this.state = {
         province: "Málaga",
+        reference: "",
         location: "",
         minPrice: "",
         maxPrice: "",

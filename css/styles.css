@@ -872,6 +872,17 @@ body::before {
   padding: 20px;
 }
 
+.sc_properties_item_ref {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
 .sc_properties_item_header {
   margin-bottom: 15px;
 }
@@ -1385,6 +1396,24 @@ body::before {
   gap: 4px;
   margin-bottom: 16px;
   color: #6b7280;
+}
+
+.property-detail__ref-bar {
+  margin: 12px 0;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.property-detail__ref {
+  color: #fff;
+  font-size: 15px;
+}
+
+.property-detail__ref strong {
+  color: #fbbf24;
+  font-size: 16px;
 }
 
 .property-detail__meta {

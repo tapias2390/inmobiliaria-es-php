@@ -68,6 +68,9 @@ class PropertyDetailView {
               ${t("contactar")}
             </button>
           </h1>
+          <div class="property-detail__ref-bar">
+            <span class="property-detail__ref">Referencia: <strong>${property.reference || property.Ref || "N/A"}</strong></span>
+          </div>
           <div class="property-detail__address">
             <span>${property.type} en ${property.location}</span>
             <span>${property.location}</span>

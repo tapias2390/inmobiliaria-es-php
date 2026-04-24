@@ -64,16 +64,37 @@ class PropertyController {
         this.view.setCurrentFilter(this.currentFilter);
       }
 
-      // Cargar propiedades (hace múltiples llamadas si es necesario)
-      const result = await this.model.fetchProperties(
-        this.currentPage,
-        40,
-        this.currentFilter,
-        this.currentPropertyType,
-        this.currentSearchFilters,
-      );
+      let result;
 
-      this.view.render(result.properties);
+      // Si hay búsqueda por referencia, usar fetchPropertyByReference
+      if (this.currentSearchFilters?.reference) {
+        const property = await this.model.fetchPropertyByReference(
+          this.currentSearchFilters.reference,
+          this.currentFilter,
+        );
+        result = {
+          properties: property ? [property] : [],
+          pagination: {
+            total: property ? 1 : 0,
+            perPage: 1,
+            currentPage: 1,
+            totalPages: 1,
+          },
+        };
+      } else {
+        // Cargar propiedades normal (hace múltiples llamadas si es necesario)
+        result = await this.model.fetchProperties(
+          this.currentPage,
+          40,
+          this.currentFilter,
+          this.currentPropertyType,
+          this.currentSearchFilters,
+        );
+      }
+
+      // Indicar si fue búsqueda por referencia
+      const searchByReference = !!this.currentSearchFilters?.reference;
+      this.view.render(result.properties, searchByReference);
 
       // Actualizar paginación
       if (this.paginationView) {
