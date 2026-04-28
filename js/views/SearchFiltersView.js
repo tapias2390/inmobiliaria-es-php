@@ -8,6 +8,9 @@ class SearchFiltersView {
       province: "Málaga",
       reference: refParam,
       location: "",
+      address: "",
+      development: "",
+      searchtext: "",
       minPrice: "",
       maxPrice: "",
       builtMin: "",
@@ -73,6 +76,30 @@ class SearchFiltersView {
             <datalist id="location-datalist">
               ${locations.map((loc) => `<option value="${this.escape(loc)}">`).join("")}
             </datalist>
+          </div>
+
+          <div class="search-filters__field">
+            <label for="sf-address">🔎 Buscar</label>
+            <input 
+              id="sf-address" 
+              name="address" 
+              type="text" 
+              value="${this.escape(this.state.address || "")}"
+              placeholder="Provincia, zona, tipo, descripción..."
+              autocomplete="off"
+            />
+            <input 
+              id="sf-development" 
+              name="development" 
+              type="hidden" 
+              value="${this.escape(this.state.development || "")}"
+            />
+            <input 
+              id="sf-searchtext" 
+              name="searchtext" 
+              type="hidden" 
+              value="${this.escape(this.state.searchtext || "")}"
+            />
           </div>
 
           <div class="search-filters__field">
@@ -192,6 +219,9 @@ class SearchFiltersView {
         province: (data.get("province") || "").toString().trim(),
         reference: (data.get("reference") || "").toString().trim(),
         location: (data.get("location") || "").toString().trim(),
+        address: (data.get("address") || "").toString().trim(),
+        development: (data.get("development") || "").toString().trim(),
+        searchtext: (data.get("searchtext") || "").toString().trim(),
         minPrice: (data.get("minPrice") || "").toString().trim(),
         maxPrice: (data.get("maxPrice") || "").toString().trim(),
         builtMin: (data.get("builtMin") || "").toString().trim(),
@@ -225,6 +255,9 @@ class SearchFiltersView {
         province: "Málaga",
         reference: "",
         location: "",
+        address: "",
+        development: "",
+        searchtext: "",
         minPrice: "",
         maxPrice: "",
         builtMin: "",

@@ -46,6 +46,7 @@ class FilterView {
           // Cerrar modal si está abierto
           const modal = document.getElementById("filterModal");
           if (modal) modal.classList.remove("is-open");
+          document.body.style.overflow = "";
           alert(
             "Por favor selecciona una Ubicación para filtrar las promociones",
           );
@@ -55,6 +56,7 @@ class FilterView {
         // Cerrar modal
         const modal = document.getElementById("filterModal");
         if (modal) modal.classList.remove("is-open");
+        document.body.style.overflow = "";
 
         this.loadPromociones(1, zona);
         return;
@@ -90,7 +92,10 @@ class FilterView {
       let url = `api/config.php?action=promociones&maxPages=10&_=${timestamp}`;
       if (zona) url += `&zona=${encodeURIComponent(zona)}`;
       console.log("URL llamada:", url);
-      console.log("Endpoint completo:", window.location.origin + "/" + url);
+      console.log(
+        "Endpoint completo:",
+        new URL(url, window.location.href).toString(),
+      );
       const response = await fetch(url);
       console.log("URL completa:", response.url);
       const data = await response.json();

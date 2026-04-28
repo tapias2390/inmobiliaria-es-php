@@ -37,6 +37,20 @@ class PropertyModel {
     };
   }
 
+  getStatusSystem(property) {
+    const s = property?.Status;
+    if (!s) return "N/A";
+    if (typeof s === "string") return s;
+
+    if (typeof s === "object") {
+      return (
+        s.system || s.System || s.name || s.Name || s.value || s.Value || "N/A"
+      );
+    }
+
+    return "N/A";
+  }
+
   async fetchProperties(
     page = 1,
     limit = 10,
@@ -69,8 +83,6 @@ class PropertyModel {
       "reference",
     ];
 
-    // Mapeo de nombres de filtro a parámetros del backend PHP
-    // (api/config.php luego los traduce a parámetros de la API real)
     const paramMap = {
       reference: "refId",
     };
@@ -98,7 +110,6 @@ class PropertyModel {
     });
 
     const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
-
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -108,7 +119,6 @@ class PropertyModel {
     const data = await response.json();
 
     const properties = this.transformProperties(data);
-    //console.log("Propiedades:", properties);
     const queryInfo = data.QueryInfo || {};
     const total = Number(queryInfo.PropertyCount || 0);
     const perPage = Number(queryInfo.PropertiesPerPage || limit);
@@ -154,7 +164,7 @@ class PropertyModel {
     if (filterByStatus) {
       const availableStatuses = ["Available", "Under Offer"];
       filtered = properties.filter((p) => {
-        const status = p.Status?.system || "N/A";
+        const status = this.getStatusSystem(p);
         return availableStatuses.includes(status);
       });
     }
@@ -166,7 +176,7 @@ class PropertyModel {
       area: property.Area,
       province: property.Province,
       type: this.translateType(property.PropertyType?.NameType || "N/A"),
-      status: this.translateStatus(property.Status?.system || "N/A"),
+      status: this.translateStatus(this.getStatusSystem(property)),
       bedrooms: Number(property.Bedrooms) || 0,
       bathrooms: Number(property.Bathrooms) || 0,
       price: this.extractPrice(property),
@@ -303,10 +313,7 @@ class PropertyModel {
     }
 
     const data = await response.json();
-    /* console.log(
-      "[PropertyDetail] raw api property:",
-      data?.Property?.[0] || null,
-    );*/
+    console.log("[PropertyDetail] raw API response:", data);
     // Filtrar por status (solo disponibles)
     const properties = this.transformProperties(data, true);
     return properties.length > 0 ? properties[0] : null;

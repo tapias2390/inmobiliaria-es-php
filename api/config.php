@@ -68,6 +68,11 @@ $langMap = [
 $language = $langMap[$langCode] ?? '2';
 $sandbox = getenv('SANDBOX') ?: 'false';
 
+// Permitir override por query param: ?sandbox=true|false
+if (isset($_GET['sandbox']) && $_GET['sandbox'] !== '') {
+    $sandbox = $_GET['sandbox'];
+}
+
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 40;
 $page = $page > 0 ? $page : 1;
@@ -363,15 +368,17 @@ $searchParams = [
     'decree218' => 'P_onlydecree218',
     'removeLocation' => 'P_RemoveLocation',
     'refId' => 'P_RefId',
+    // 'address', 'development', 'searchtext' se filtran localmente en el frontend
 ];
 
 foreach ($searchParams as $key => $apiParam) {
     if (isset($_GET[$key]) && $_GET[$key] !== '') {
-        // Convertir newDevs=1 a "include" para el API de Resales Online
-        if ($key === 'newDevs' && $_GET[$key] === '1') {
+        $val = $_GET[$key];
+        // Convertir newDevs=1 o "on" a "include" para el API de Resales Online
+        if ($key === 'newDevs' && ($val === '1' || $val === 'on')) {
             $params[$apiParam] = 'include';
         } else {
-            $params[$apiParam] = $_GET[$key];
+            $params[$apiParam] = $val;
         }
     }
 }
@@ -391,6 +398,65 @@ foreach (['featuresMust', 'featuresPrefer'] as $featuresKey) {
 
 if (!empty($reference)) {
     $params['P_RefId'] = $reference;
+
+    // Permitir encontrar referencias que pertenezcan a desarrollos / nueva promoción
+    // (sin esto, algunas referencias de promociones no aparecen en el filtro estándar)
+    $params['searchfromdevelopments'] = '1';
+    $params['newdevaccess'] = '2';
+
+    // Para búsquedas por referencia, intentar primero producción y si no encuentra,
+    // reintentar con sandbox (muchas referencias existen en un entorno pero no en otro)
+    $result = null;
+    $entornos = ['false', 'true']; // primero producción, luego sandbox
+
+    foreach ($entornos as $entorno) {
+        $testParams = $params;
+        $testParams['P_sandbox'] = $entorno;
+        $url = "$apiBaseUrl/SearchProperties?" . http_build_query($testParams);
+
+        error_log("Buscando referencia con sandbox=$entorno: " . $url);
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => true
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        error_log("Respuesta sandbox=$entorno: HTTP $httpCode, Error: $error");
+
+        if ($httpCode === 200 && $response) {
+            $data = json_decode($response, true);
+            $count = $data['QueryInfo']['PropertyCount'] ?? 0;
+            error_log("PropertyCount con sandbox=$entorno: $count");
+            if (!empty($data['Property'])) {
+                $result = $response;
+                error_log("¡Encontrado con sandbox=$entorno!");
+                break;
+            }
+        }
+    }
+
+    if ($result) {
+        echo $result;
+        exit;
+    } else {
+        // Debug: devolver info de qué se intentó
+        echo json_encode([
+            'QueryInfo' => ['PropertyCount' => 0],
+            'Property' => [],
+            '_debug' => [
+                'reference' => $reference,
+                'message' => 'No se encontró en ningún entorno'
+            ]
+        ]);
+        exit;
+    }
 } else {
     $params['P_PageNo'] = $page;
     $params['P_PageSize'] = $limit;

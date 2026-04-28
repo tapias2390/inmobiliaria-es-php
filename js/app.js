@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Propiedades con descuento:", promoProperties.length);
 
     const data = { Property: promoProperties };
-    const transformed = model.transformProperties(data, false);
+    const transformed = model.transformProperties(data, true); // true = filtrar no disponibles
     console.log("Propiedades transformadas mostradas:", transformed.length);
     view.render(transformed, false, "promo");
 

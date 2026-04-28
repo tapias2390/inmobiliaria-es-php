@@ -82,7 +82,7 @@ class PropertyController {
           },
         };
       } else {
-        // Cargar propiedades normal (hace múltiples llamadas si es necesario)
+        // Cargar propiedades normal
         result = await this.model.fetchProperties(
           this.currentPage,
           40,
@@ -90,6 +90,35 @@ class PropertyController {
           this.currentPropertyType,
           this.currentSearchFilters,
         );
+
+        // Filtrar localmente por address/development si hay texto de búsqueda
+        const searchText = this.currentSearchFilters?.address
+          ?.toLowerCase()
+          .trim();
+        if (searchText && result.properties?.length > 0) {
+          const antes = result.properties.length;
+          result.properties = result.properties.filter((p) => {
+            if (!p) return false;
+            const txt = searchText;
+            const s = (str) => (str || "").toLowerCase();
+            return (
+              s(p.province).includes(txt) ||
+              s(p.area).includes(txt) ||
+              s(p.location).includes(txt) ||
+              s(p.type).includes(txt) ||
+              s(p.Description).includes(txt)
+            );
+          });
+          console.log(
+            "Filtro:",
+            searchText,
+            "- antes:",
+            antes,
+            "después:",
+            result.properties.length,
+          );
+          result.pagination.total = result.properties.length;
+        }
       }
 
       // Indicar si fue búsqueda por referencia
