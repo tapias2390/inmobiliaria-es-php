@@ -64,30 +64,42 @@ class SearchFiltersView {
 
           <div class="search-filters__field">
             <label for="sf-location">Ubicación</label>
-            <input 
-              id="sf-location" 
-              name="location" 
-              type="text" 
-              list="location-datalist"
-              value="${this.escape(this.state.location)}"
-              placeholder="Escribe una ubicación..."
-              autocomplete="off"
-            />
+            <div style="position: relative; display: flex; align-items: center;">
+              <input 
+                id="sf-location" 
+                name="location" 
+                type="text" 
+                list="location-datalist"
+                value="${this.escape(this.state.location)}"
+                placeholder="Escribe una ubicación..."
+                autocomplete="off"
+                style="padding-right: 30px;"
+                oninput="this.nextElementSibling.style.display = this.value ? 'flex' : 'none'"
+              />
+              <span onclick="document.getElementById('sf-location').value = ''; this.style.display = 'none'; document.getElementById('searchFiltersForm').dispatchEvent(new Event('submit'))" 
+                    style="position: absolute; right: 24px; cursor: pointer; font-size: 12px; width: 18px; height: 18px; background: #9ca3af; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; display: ${this.state.location ? "flex" : "none"}; z-index: 2;">✕</span>
+            </div>
             <datalist id="location-datalist">
               ${locations.map((loc) => `<option value="${this.escape(loc)}">`).join("")}
             </datalist>
           </div>
 
           <div class="search-filters__field">
-            <label for="sf-address">🔎 Buscar</label>
-            <input 
-              id="sf-address" 
-              name="address" 
-              type="text" 
-              value="${this.escape(this.state.address || "")}"
-              placeholder="Provincia, zona, tipo, descripción..."
-              autocomplete="off"
-            />
+            <label for="sf-address">🔎 Dirección / Nueva Promoción</label>
+            <div style="position: relative; display: flex; align-items: center;">
+              <input 
+                id="sf-address" 
+                name="address" 
+                type="text" 
+                value="${this.escape(this.state.address || "")}"
+                placeholder="Provincia, zona, tipo, descripción..."
+                autocomplete="off"
+                style="padding-right: 24px;"
+                oninput="this.nextElementSibling.style.display = this.value ? 'block' : 'none'"
+              />
+              <span onclick="document.getElementById('sf-address').value = ''; this.style.display = 'none'; document.getElementById('searchFiltersForm').dispatchEvent(new Event('submit'))" 
+                    style="position: absolute; right: 6px; cursor: pointer; font-size: 12px; width: 18px; height: 18px; background: #9ca3af; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; display: ${this.state.address ? "flex" : "none"};">✕</span>
+            </div>
             <input 
               id="sf-development" 
               name="development" 
