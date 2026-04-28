@@ -163,6 +163,15 @@ class PropertyView {
                                     }
                                 `
                                     : `
+                                    ${
+                                      property.originalPrice &&
+                                      property.originalPrice > property.price
+                                        ? `
+                                        <span class="discount-badge">-${((1 - property.price / property.originalPrice) * 100).toFixed(2)}%</span>
+                                        <span class="properties_price_label properties_price_before" style="text-decoration:line-through;font-size:0.7em;opacity:0.7;">${currencySymbol}${this.formatPriceNumber(property.originalPrice)}</span>
+                                        `
+                                        : ""
+                                    }
                                     <span class="properties_price_label properties_price_before">${currencySymbol}</span>
                                     <span class="properties_price_data properties_price1">${this.formatPriceNumber(property.price)}</span>
                                 `

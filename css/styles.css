@@ -1013,6 +1013,18 @@ body::before {
   margin-right: 4px;
 }
 
+.discount-badge {
+  display: inline-block;
+  background: #ff3b30;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
 .sc_properties_item_options {
   border-top: 1px solid #eee;
   padding-top: 15px;

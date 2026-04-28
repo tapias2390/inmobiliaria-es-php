@@ -171,7 +171,8 @@ class PropertyModel {
       bathrooms: Number(property.Bathrooms) || 0,
       price: this.extractPrice(property),
       currency: property.Currency || "EUR",
-      originalPrice: property.OriginalPrice || property.Price,
+      originalPrice:
+        Number(property.OriginalPrice) || Number(property.Price) || 0,
       rentalPrice1: Number(property.RentalPrice1) || 0,
       rentalPrice2: Number(property.RentalPrice2) || 0,
       rentalPeriod: property.RentalPeriod || "",

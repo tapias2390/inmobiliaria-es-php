@@ -56,12 +56,62 @@ document.addEventListener("DOMContentLoaded", () => {
   filterView.render();
   filterView.bind((filterId) => controller.setFilter(filterId));
 
+  // Listener para promociones
+  window.addEventListener("properties:promociones", async (e) => {
+    window.isPromoMode = true;
+    const { properties, pagination } = e.detail;
+    console.log("Total propiedades recibidas de API:", properties.length);
+
+    // Filtrar solo propiedades con descuento (originalPrice > price)
+    const promoProperties = properties.filter((p) => {
+      const originalPrice = Number(p.OriginalPrice);
+      const price = Number(p.Price);
+      return originalPrice > price;
+    });
+    console.log("Propiedades con descuento:", promoProperties.length);
+
+    const data = { Property: promoProperties };
+    const transformed = model.transformProperties(data, false);
+    console.log("Propiedades transformadas mostradas:", transformed.length);
+    view.render(transformed, false, "promo");
+
+    // Usar la paginación que viene de la API (total de la API, no de las filtradas)
+    if (pagination) {
+      paginationView.render(pagination);
+    }
+  });
+
+  // Listener para detectar si estamos en modo promociones
+  let isPromoMode = false;
+  window.addEventListener("properties:promociones", () => {
+    isPromoMode = true;
+  });
+  window.addEventListener("properties:updated", () => {
+    isPromoMode = false;
+  });
+
   if (typeof propertyTypeFilterView.render === "function") {
     propertyTypeFilterView.render();
   }
   propertyTypeFilterView.bind((type) => controller.setPropertyType(type));
 
   searchFiltersView.bind(async (filters) => {
+    // Si newDevs está marcado, cargar promociones en lugar de filtros normales
+    if (filters.newDevs) {
+      if (!filters.location) {
+        alert(
+          "Por favor selecciona una Ubicación para filtrar las promociones",
+        );
+        return;
+      }
+      filterModal.classList.remove("is-open");
+      document.body.style.overflow = "";
+      const zona = filters.location || "";
+      console.log("Cargando promociones con zona:", zona);
+      filterView.loadPromociones(1, zona);
+      return;
+    }
+
     // Cerrar modal primero
     filterModal.classList.remove("is-open");
     document.body.style.overflow = "";
@@ -90,7 +140,16 @@ document.addEventListener("DOMContentLoaded", () => {
   featuresFilterView.render();
   featuresFilterView.bind((payload) => controller.setSearchFilters(payload));
 
-  paginationView.bind((page) => controller.goToPage(page));
+  // Variable global para detectar modo promociones
+  window.isPromoMode = false;
+
+  paginationView.bind((page) => {
+    if (window.isPromoMode) {
+      filterView.loadPromociones(page);
+    } else {
+      controller.goToPage(page);
+    }
+  });
 
   // Cargar catálogos para filtros dinámicos
   (async () => {

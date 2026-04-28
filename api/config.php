@@ -125,6 +125,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
         }
 
         $u = "$apiBaseUrl/BookingCalendar?" . http_build_query($baseParams);
+    } elseif ($action === 'promociones') {
+        // Promociones: buscar en varias páginas para obtener todas las promociones
+        $allProperties = [];
+        $seenRefs = [];
+        $pageUrls = [];
+        $maxPages = isset($_GET['maxPages']) ? intval($_GET['maxPages']) : 10; // Por defecto 10 páginas
+        $zona = isset($_GET['zona']) ? $_GET['zona'] : ''; // Filtrar por zona si se especifica
+
+        for ($page = 1; $page <= $maxPages; $page++) {
+            $pageParams = $baseParams;
+            $pageParams['searchfromdevelopments'] = '1';
+            $pageParams['newdevaccess'] = '2';
+            $pageParams['P_SortType'] = isset($_GET['sortType']) ? $_GET['sortType'] : '2';
+            $pageParams['P_PageSize'] = '40';
+            $pageParams['P_Page'] = $page;
+
+            // Agregar filtro de zona si se especifica
+            if ($zona) {
+                $pageParams['P_Location'] = $zona;
+            }
+
+            $pageUrl = "$apiBaseUrl/SearchProperties?" . http_build_query($pageParams);
+            $pageUrls[] = $pageUrl;
+            error_log("Promociones página $page: " . $pageUrl);
+
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $pageUrl,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_SSL_VERIFYPEER => true
+            ]);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 200 && $response) {
+                $data = json_decode($response, true);
+                if (json_last_error() === JSON_ERROR_NONE && !empty($data['Property'])) {
+                    // Agregar solo propiedades únicas por referencia
+                    foreach ($data['Property'] as $prop) {
+                        $ref = $prop['Reference'] ?? '';
+                        if ($ref && !isset($seenRefs[$ref])) {
+                            $allProperties[] = $prop;
+                            $seenRefs[$ref] = true;
+                        }
+                    }
+                    // Guardar el PropertyCount total
+                    if ($page === 1 && isset($data['QueryInfo']['PropertyCount'])) {
+                        $totalCount = $data['QueryInfo']['PropertyCount'];
+                    }
+                }
+            }
+        }
+
+        // Devolver resultado consolidado
+        header('Content-Type: application/json');
+        echo json_encode([
+            'QueryInfo' => [
+                'PropertyCount' => $totalCount ?? count($allProperties),
+                'CurrentPage' => 1,
+                'PropertiesPerPage' => 40
+            ],
+            'Property' => $allProperties,
+            '_debug' => [
+                'pagesFetched' => $maxPages,
+                'totalUnique' => count($allProperties),
+                'pageUrls' => $pageUrls
+            ]
+        ]);
+        exit;
     } else {
         http_response_code(400);
         echo json_encode(['error' => 'Acción no válida']);
@@ -296,7 +367,12 @@ $searchParams = [
 
 foreach ($searchParams as $key => $apiParam) {
     if (isset($_GET[$key]) && $_GET[$key] !== '') {
-        $params[$apiParam] = $_GET[$key];
+        // Convertir newDevs=1 a "include" para el API de Resales Online
+        if ($key === 'newDevs' && $_GET[$key] === '1') {
+            $params[$apiParam] = 'include';
+        } else {
+            $params[$apiParam] = $_GET[$key];
+        }
     }
 }
 

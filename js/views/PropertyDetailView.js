@@ -86,6 +86,15 @@ class PropertyDetailView {
                   <span class="properties_price_after">${property.rentalPeriod === "Week" ? "/semana" : property.rentalPeriod === "Month" ? "/mes" : ""}</span>
                 `
                     : `
+                  ${
+                    property.originalPrice &&
+                    property.originalPrice > property.price
+                      ? `
+                    <span class="discount-badge">-${((1 - property.price / property.originalPrice) * 100).toFixed(2)}%</span>
+                    <span class="properties_price_label" style="text-decoration:line-through;font-size:0.7em;opacity:0.7;">${currencySymbol}${this.formatPrice(property.originalPrice)}</span>
+                    `
+                      : ""
+                  }
                   <span class="properties_price_label">${currencySymbol}</span>
                   <span class="properties_price_data">${this.formatPrice(property.price)}</span>
                   ${priceLabel ? `<span class="properties_price_after">${priceLabel}</span>` : ""}
