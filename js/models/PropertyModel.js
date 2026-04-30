@@ -301,24 +301,29 @@ class PropertyModel {
   }
 
   async fetchPropertyByReference(reference, filter = "1") {
-    const params = new URLSearchParams({
-      ref: reference,
-      filter: String(filter || "1"),
-    });
+    const filterCandidates = [String(filter || "1"), "1", "5"]
+      .filter(Boolean)
+      .filter((v, i, arr) => arr.indexOf(v) === i);
 
-    const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
+    for (const f of filterCandidates) {
+      const params = new URLSearchParams({
+        ref: reference,
+        filter: f,
+      });
 
-    const response = await fetch(url);
+      const url = `${this.config.API_ENDPOINTS.SEARCH_PROPERTIES}?${params.toString()}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
 
-    if (!response.ok) {
-      throw new Error(`Error HTTP: ${response.status}`);
+      const data = await response.json();
+      console.log("[PropertyDetail] raw API response:", data);
+      const properties = this.transformProperties(data, true);
+      if (properties.length > 0) return properties[0];
     }
 
-    const data = await response.json();
-    console.log("[PropertyDetail] raw API response:", data);
-    // Filtrar por status (solo disponibles)
-    const properties = this.transformProperties(data, true);
-    return properties.length > 0 ? properties[0] : null;
+    return null;
   }
 
   async fetchFeatures(filter = 1) {
