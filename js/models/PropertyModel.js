@@ -171,11 +171,13 @@ class PropertyModel {
 
     return filtered.map((property) => ({
       reference: property.Reference,
+      lastUpdateDate: property.LastUpdateDate || property.LastUpdatedDate || "",
       location: property.Location,
       subLocation: property.SubLocation || "",
       area: property.Area,
       province: property.Province,
       type: this.translateType(property.PropertyType?.NameType || "N/A"),
+      isNewDevelopment: property.PropertyType?.NameType === "New Development",
       status: this.translateStatus(this.getStatusSystem(property)),
       bedrooms: Number(property.Bedrooms) || 0,
       bathrooms: Number(property.Bathrooms) || 0,

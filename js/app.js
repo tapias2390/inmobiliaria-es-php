@@ -59,21 +59,33 @@ document.addEventListener("DOMContentLoaded", () => {
   // Listener para promociones
   window.addEventListener("properties:promociones", async (e) => {
     window.isPromoMode = true;
-    const { properties, pagination } = e.detail;
+    const { properties, pagination, mode } = e.detail;
     console.log("Total propiedades recibidas de API:", properties.length);
 
-    // Filtrar solo propiedades con descuento (originalPrice > price)
-    const promoProperties = properties.filter((p) => {
-      const originalPrice = Number(p.OriginalPrice);
-      const price = Number(p.Price);
-      return originalPrice > price;
-    });
-    console.log("Propiedades con descuento:", promoProperties.length);
+    const activeMode = mode || "bajada";
 
-    const data = { Property: promoProperties };
-    const transformed = model.transformProperties(data, true); // true = filtrar no disponibles
-    console.log("Propiedades transformadas mostradas:", transformed.length);
-    view.render(transformed, false, "promo");
+    if (activeMode === "nuevo") {
+      const data = { Property: properties };
+      const transformed = model.transformProperties(data, true).map((p) => ({
+        ...p,
+        isRecent: true,
+      })); // true = filtrar no disponibles
+      console.log("Propiedades NUEVAS mostradas:", transformed.length);
+      view.render(transformed, false, "promo");
+    } else {
+      // Filtrar solo propiedades con descuento (originalPrice > price)
+      const promoProperties = properties.filter((p) => {
+        const originalPrice = Number(p.OriginalPrice);
+        const price = Number(p.Price);
+        return originalPrice > price;
+      });
+      console.log("Propiedades con descuento:", promoProperties.length);
+
+      const data = { Property: promoProperties };
+      const transformed = model.transformProperties(data, true); // true = filtrar no disponibles
+      console.log("Propiedades transformadas mostradas:", transformed.length);
+      view.render(transformed, false, "promo");
+    }
 
     // Usar la paginación que viene de la API (total de la API, no de las filtradas)
     if (pagination) {

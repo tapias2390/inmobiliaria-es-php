@@ -28,6 +28,9 @@ class FilterView {
         <button type="button" class="filter-btn" data-promociones="1">
            Bajada de precio
         </button>
+        <button type="button" class="filter-btn" data-nuevo="1">
+           Nuevo
+        </button>
       </div>
     `;
   }
@@ -59,6 +62,17 @@ class FilterView {
         document.body.style.overflow = "";
 
         this.loadPromociones(1, zona);
+        return;
+      }
+
+      const nuevoBtn = e.target.closest("[data-nuevo]");
+      if (nuevoBtn) {
+        // Cerrar modal
+        const modal = document.getElementById("filterModal");
+        if (modal) modal.classList.remove("is-open");
+        document.body.style.overflow = "";
+
+        this.loadNuevos(1);
         return;
       }
 
@@ -141,6 +155,7 @@ class FilterView {
         const event = new CustomEvent("properties:promociones", {
           detail: {
             properties: data.Property,
+            mode: "bajada",
             pagination: {
               currentPage: 1,
               totalPages: 1,
@@ -153,6 +168,49 @@ class FilterView {
         if (targetContainer) {
           targetContainer.innerHTML =
             '<div class="trx_addons_message_box trx_addons_message_box_info">No se encontraron promociones</div>';
+        }
+      }
+    } catch (error) {
+      if (targetContainer) {
+        targetContainer.innerHTML = `<div class="trx_addons_message_box trx_addons_message_box_error">Error: ${error.message}</div>`;
+      }
+    }
+  }
+
+  async loadNuevos(page = 1) {
+    console.log("loadNuevos llamada con página:", page);
+    const targetContainer = document.getElementById("properties-container");
+    if (targetContainer) {
+      targetContainer.innerHTML =
+        '<div class="trx_addons_message_box trx_addons_message_box_info"><div class="loader"></div><p>Cargando inmuebles nuevos...</p></div>';
+    }
+
+    try {
+      const timestamp = Date.now();
+      const url = `api/config.php?action=promociones&maxPages=10&tipo=nuevo&_=${timestamp}`;
+      console.log("URL llamada:", url);
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.Property && data.Property.length > 0) {
+        console.log("Total propiedades nuevas:", data.Property.length);
+
+        const event = new CustomEvent("properties:promociones", {
+          detail: {
+            properties: data.Property,
+            mode: "nuevo",
+            pagination: {
+              currentPage: 1,
+              totalPages: 1,
+              total: data.Property.length,
+            },
+          },
+        });
+        window.dispatchEvent(event);
+      } else {
+        if (targetContainer) {
+          targetContainer.innerHTML =
+            '<div class="trx_addons_message_box trx_addons_message_box_info">No se encontraron nuevas promociones</div>';
         }
       }
     } catch (error) {

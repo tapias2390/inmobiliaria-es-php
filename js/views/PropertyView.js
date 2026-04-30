@@ -99,6 +99,11 @@ class PropertyView {
       property.subLocation || property.location || property.area || "";
     const totalSize =
       Number(property.built || 0) + Number(property.terrace || 0);
+    const isNewDev =
+      !!property.isNewDevelopment || property.type === "New Development";
+    const isRecent = !!property.isRecent;
+    const newDevBadge =
+      isNewDev || isRecent ? `<div class="property_badge_new">NUEVO</div>` : "";
 
     return `
             <div class="trx_addons_column-1_3">
@@ -111,6 +116,7 @@ class PropertyView {
                                 alt="${title}"
                                 onerror="this.src='${this.defaultImage}'">
                         </a>
+                        ${newDevBadge}
                         <div class="mask"></div>
                         <div class="icons">
                             <a href="${detailUrl}" class="icon-eye-1" aria-label="Ver detalle" title="Ver detalle">
@@ -123,6 +129,7 @@ class PropertyView {
                     </div>
                     <div class="sc_properties_item_info">
                         <div class="sc_properties_item_ref">Ref: ${property.reference || "N/A"}</div>
+                        ${property.lastUpdateDate ? `<div class="sc_properties_item_date">Actualizado: ${property.lastUpdateDate}</div>` : ""}
                         <h5 class="sc_properties_item_title">
                             <a href="${detailUrl}">${title}</a>
                         </h5>

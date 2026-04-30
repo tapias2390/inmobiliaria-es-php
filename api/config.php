@@ -137,14 +137,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
         $pageUrls = [];
         $maxPages = isset($_GET['maxPages']) ? intval($_GET['maxPages']) : 10; // Por defecto 10 páginas
         $zona = isset($_GET['zona']) ? $_GET['zona'] : ''; // Filtrar por zona si se especifica
+        $tipo = isset($_GET['tipo']) ? $_GET['tipo'] : 'bajada'; // 'bajada' o 'nuevo'
+
+        // Para "nuevo" queremos velocidad: por defecto solo 2 páginas (80 propiedades)
+        if ($tipo === 'nuevo' && !isset($_GET['maxPages'])) {
+            $maxPages = 2;
+        }
 
         for ($page = 1; $page <= $maxPages; $page++) {
             $pageParams = $baseParams;
             $pageParams['searchfromdevelopments'] = '1';
             $pageParams['newdevaccess'] = '2';
-            $pageParams['P_SortType'] = isset($_GET['sortType']) ? $_GET['sortType'] : '2';
+            $pageParams['P_SortType'] = isset($_GET['sortType']) ? $_GET['sortType'] : ($tipo === 'nuevo' ? '3' : '2');
             $pageParams['P_PageSize'] = '40';
             $pageParams['P_Page'] = $page;
+
+            // Si es filtro de nuevos desarrollos
+            if ($tipo === 'nuevo') {
+                $pageParams['P_LastUpdated'] = '7';
+                $pageParams['p_ShowLastUpdateDate'] = 'true';
+            }
 
             // Agregar filtro de zona si se especifica
             if ($zona) {
