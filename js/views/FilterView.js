@@ -26,7 +26,7 @@ class FilterView {
           )
           .join("")}
         <button type="button" class="filter-btn" data-promociones="1">
-          Promociones
+           Bajada de precio
         </button>
       </div>
     `;
