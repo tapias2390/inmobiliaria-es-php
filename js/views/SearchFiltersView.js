@@ -43,27 +43,27 @@ class SearchFiltersView {
       <form class="search-filters" id="searchFiltersForm">
         <div class="search-filters__row">
           <div class="search-filters__field" style="display:none;">
-            <label for="sf-province">Provincia</label>
+            <label for="sf-province">${t("provincia")}</label>
             <select id="sf-province" name="province">
-              ${this.selectOptions(provinces, this.state.province, "Todas")}
+              ${this.selectOptions(provinces, this.state.province, t("todas"))}
             </select>
           </div>
 
           <div class="search-filters__field" style="flex: 0 0 100%; max-width: 200px;">
-            <label for="sf-reference" style="color: #111827; font-weight: 600;">🔍 Referencia</label>
+            <label for="sf-reference" style="color: #111827; font-weight: 600;">🔍 ${t("referencia")}</label>
             <input 
               id="sf-reference" 
               name="reference" 
               type="text" 
               value="${this.escape(this.state.reference || "")}"
-              placeholder="Ej: R1234567"
+              placeholder="${t("referencia")}: R1234567"
               autocomplete="off"
               style="border: 2px solid #111827; font-weight: 600;"
             />
           </div>
 
           <div class="search-filters__field">
-            <label for="sf-location">Ubicación</label>
+            <label for="sf-location">${t("ubicacion")}</label>
             <div style="position: relative; display: flex; align-items: center;">
               <input 
                 id="sf-location" 
@@ -71,7 +71,7 @@ class SearchFiltersView {
                 type="text" 
                 list="location-datalist"
                 value="${this.escape(this.state.location)}"
-                placeholder="Escribe una ubicación..."
+                placeholder="${t("ubicacion")}..."
                 autocomplete="off"
                 style="padding-right: 30px;"
                 oninput="this.nextElementSibling.style.display = this.value ? 'flex' : 'none'"
@@ -85,14 +85,14 @@ class SearchFiltersView {
           </div>
 
           <div class="search-filters__field">
-            <label for="sf-address">🔎 Dirección / Nueva Promoción</label>
+            <label for="sf-address">🔎 ${t("direccion")}</label>
             <div style="position: relative; display: flex; align-items: center;">
               <input 
                 id="sf-address" 
                 name="address" 
                 type="text" 
                 value="${this.escape(this.state.address || "")}"
-                placeholder="Provincia, zona, tipo, descripción..."
+                placeholder="${t("provincia")}, ${t("zona")}, ${t("tipoPropiedad")}, ..."
                 autocomplete="off"
                 style="padding-right: 24px;"
                 oninput="this.nextElementSibling.style.display = this.value ? 'block' : 'none'"
@@ -115,14 +115,14 @@ class SearchFiltersView {
           </div>
 
           <div class="search-filters__field">
-            <label for="sf-minPrice">Precio mín.</label>
+            <label for="sf-minPrice">${t("precioMin")}</label>
             <input id="sf-minPrice" name="minPrice" type="number" min="0" value="${this.escape(
               this.state.minPrice,
             )}" placeholder="0" />
           </div>
 
           <div class="search-filters__field">
-            <label for="sf-maxPrice">Precio máx.</label>
+            <label for="sf-maxPrice">${t("precioMax")}</label>
             <input id="sf-maxPrice" name="maxPrice" type="number" min="0" value="${this.escape(
               this.state.maxPrice,
             )}" placeholder="0" />
@@ -131,25 +131,25 @@ class SearchFiltersView {
 
         <div class="search-filters__row">
           <div class="search-filters__field">
-            <label for="sf-builtMin">Construidos mín. (m²)</label>
+            <label for="sf-builtMin">${t("construidosMin")}</label>
             <input id="sf-builtMin" name="builtMin" type="number" min="0" value="${this.escape(
               this.state.builtMin,
             )}" placeholder="0" />
           </div>
 
           <div class="search-filters__field">
-            <label for="sf-builtMax">Construidos máx. (m²)</label>
+            <label for="sf-builtMax">${t("construidosMax")}</label>
             <input id="sf-builtMax" name="builtMax" type="number" min="0" value="${this.escape(
               this.state.builtMax,
             )}" placeholder="0" />
           </div>
 
           <div class="search-filters__field">
-            <label for="sf-beds">Dormitorios</label>
+            <label for="sf-beds">${t("dormitorios")}</label>
             <select id="sf-beds" name="beds">
               ${this.options(
                 [
-                  { v: "", l: "Cualquiera" },
+                  { v: "", l: t("cualquiera") },
                   { v: "1x", l: "1+" },
                   { v: "2x", l: "2+" },
                   { v: "3x", l: "3+" },
@@ -162,11 +162,11 @@ class SearchFiltersView {
           </div>
 
           <div class="search-filters__field">
-            <label for="sf-baths">Baños</label>
+            <label for="sf-baths">${t("banos")}</label>
             <select id="sf-baths" name="baths">
               ${this.options(
                 [
-                  { v: "", l: "Cualquiera" },
+                  { v: "", l: t("cualquiera") },
                   { v: "1x", l: "1+" },
                   { v: "2x", l: "2+" },
                   { v: "3x", l: "3+" },
@@ -178,15 +178,15 @@ class SearchFiltersView {
           </div>
 
           <div class="search-filters__field">
-            <label for="sf-sortType">Orden</label>
+            <label for="sf-sortType">${t("ordenar")}</label>
             <select id="sf-sortType" name="sortType">
               ${this.options(
                 [
-                  { v: "", l: "Por defecto" },
-                  { v: "0", l: "Sistema" },
-                  { v: "1", l: "A-Z" },
-                  { v: "2", l: "Z-A" },
-                  { v: "3", l: "Última actualización" },
+                  { v: "", l: t("porDefecto") },
+                  { v: "0", l: t("sistema") },
+                  { v: "1", l: t("aZ") },
+                  { v: "2", l: t("zA") },
+                  { v: "3", l: t("ultimaActualizacion") },
                 ],
                 this.state.sortType,
               )}
@@ -194,15 +194,15 @@ class SearchFiltersView {
           </div>
 
           <div class="search-filters__field search-filters__field--checkbox">
-            <label for="sf-newDevs">Nueva promoción</label>
+            <label for="sf-newDevs">${t("nuevaPromocion")}</label>
             <input id="sf-newDevs" name="newDevs" type="checkbox" ${
               this.state.newDevs ? "checked" : ""
             } />
           </div>
 
           <div class="search-filters__actions">
-            <button type="submit" class="sc_button">Aplicar filtros</button>
-            <button type="button" class="sc_button" data-reset>Limpiar</button>
+            <button type="submit" class="sc_button">${t("aplicarFiltros")}</button>
+            <button type="button" class="sc_button" data-reset>${t("limpiar")}</button>
           </div>
         </div>
       </form>

@@ -59,18 +59,35 @@ document.addEventListener("DOMContentLoaded", () => {
   // Listener para promociones
   window.addEventListener("properties:promociones", async (e) => {
     window.isPromoMode = true;
+    window.promoMode = e.detail?.mode || "bajada";
     const { properties, pagination, mode } = e.detail;
     console.log("Total propiedades recibidas de API:", properties.length);
 
     const activeMode = mode || "bajada";
 
-    if (activeMode === "nuevo") {
+    if (activeMode === "nuevaPromocion") {
+      // Nueva Promoción - usar filter 5 con paginación
+      console.log("Modo nuevaPromocion - propiedades:", properties.length);
+      view.render(properties, false, "promo");
+      if (pagination) {
+        paginationView.render(pagination);
+      }
+    } else if (activeMode === "nuevo") {
       const data = { Property: properties };
       const transformed = model.transformProperties(data, true).map((p) => ({
         ...p,
         isRecent: true,
       })); // true = filtrar no disponibles
       console.log("Propiedades NUEVAS mostradas:", transformed.length);
+      view.render(transformed, false, "promo");
+    } else if (activeMode === "newDevs") {
+      // New Development - marcar para mostrar badge
+      const data = { Property: properties };
+      const transformed = model.transformProperties(data, true).map((p) => ({
+        ...p,
+        isNewDevelopment: true,
+      }));
+      console.log("Propiedades NEW DEVELOPMENT mostradas:", transformed.length);
       view.render(transformed, false, "promo");
     } else {
       // Filtrar solo propiedades con descuento (originalPrice > price)
@@ -95,11 +112,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Listener para detectar si estamos en modo promociones
   let isPromoMode = false;
-  window.addEventListener("properties:promociones", () => {
+  let promoMode = "bajada";
+  window.addEventListener("properties:promociones", (e) => {
     isPromoMode = true;
+    promoMode = e.detail?.mode || "bajada";
   });
   window.addEventListener("properties:updated", () => {
     isPromoMode = false;
+    promoMode = "bajada";
   });
 
   if (typeof propertyTypeFilterView.render === "function") {
@@ -108,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
   propertyTypeFilterView.bind((type) => controller.setPropertyType(type));
 
   searchFiltersView.bind(async (filters) => {
-    // Si newDevs está marcado, cargar promociones en lugar de filtros normales
+    // Si newDevs está marcado, cargar nuevas promociones en lugar de filtros normales
     if (filters.newDevs) {
       if (!filters.location) {
         alert(
@@ -119,8 +139,8 @@ document.addEventListener("DOMContentLoaded", () => {
       filterModal.classList.remove("is-open");
       document.body.style.overflow = "";
       const zona = filters.location || "";
-      console.log("Cargando promociones con zona:", zona);
-      filterView.loadPromociones(1, zona);
+      console.log("Cargando nuevas promociones con zona:", zona);
+      filterView.loadPromociones(1, zona, "newDevs");
       return;
     }
 
@@ -154,10 +174,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Variable global para detectar modo promociones
   window.isPromoMode = false;
+  window.promoMode = "bajada";
 
   paginationView.bind((page) => {
     if (window.isPromoMode) {
-      filterView.loadPromociones(page);
+      if (window.promoMode === "nuevaPromocion") {
+        filterView.loadNuevaPromocion(page);
+      } else {
+        filterView.loadPromociones(page);
+      }
     } else {
       controller.goToPage(page);
     }

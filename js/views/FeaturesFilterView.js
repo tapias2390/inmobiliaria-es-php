@@ -23,21 +23,21 @@ class FeaturesFilterView {
     this.container.innerHTML = `
       <div class="features-filters">
         <div class="features-filters__head">
-          <h3 class="features-filters__title">Características</h3>
-          <p class="features-filters__hint">Escribe y selecciona una característica para agregarla.</p>
+          <h3 class="features-filters__title">${t("caracteristicas")}</h3>
+          <p class="features-filters__hint">${t("caracteristicasHint")}</p>
         </div>
 
         <datalist id="${listId}">${optionsHtml}</datalist>
 
         <div class="features-filters__grid">
           <div class="features-filters__col">
-            <label class="features-filters__label" for="featuresMustInput">Debe tener</label>
+            <label class="features-filters__label" for="featuresMustInput">${t("debeTener")}</label>
             <input
               id="featuresMustInput"
               class="features-filters__input"
               type="text"
               list="${listId}"
-              placeholder="Escribe para buscar..."
+              placeholder="${t("escribirBuscar")}"
               autocomplete="off"
               data-features-input="must"
             />
@@ -45,13 +45,13 @@ class FeaturesFilterView {
           </div>
 
           <div class="features-filters__col">
-            <label class="features-filters__label" for="featuresPreferInput">Preferible tener</label>
+            <label class="features-filters__label" for="featuresPreferInput">${t("preferibleTener")}</label>
             <input
               id="featuresPreferInput"
               class="features-filters__input"
               type="text"
               list="${listId}"
-              placeholder="Escribe para buscar..."
+              placeholder="${t("escribirBuscar")}"
               autocomplete="off"
               data-features-input="prefer"
             />
@@ -59,8 +59,8 @@ class FeaturesFilterView {
           </div>
 
           <div class="features-filters__actions">
-            <button type="button" class="sc_button" data-apply-features>Aplicar</button>
-            <button type="button" class="sc_button" data-clear-features>Limpiar</button>
+            <button type="button" class="sc_button" data-apply-features>${t("aplicarFiltros")}</button>
+            <button type="button" class="sc_button" data-clear-features>${t("limpiar")}</button>
           </div>
         </div>
       </div>
