@@ -184,7 +184,7 @@ class PropertyModel {
       price: this.extractPrice(property),
       currency: property.Currency || "EUR",
       originalPrice:
-        Number(property.OriginalPrice) || Number(property.Price) || 0,
+        Number(property.OriginalPrice) || this.extractPrice(property) || 0,
       rentalPrice1: Number(property.RentalPrice1) || 0,
       rentalPrice2: Number(property.RentalPrice2) || 0,
       rentalPeriod: property.RentalPeriod || "",
@@ -202,7 +202,23 @@ class PropertyModel {
   }
 
   extractPrice(property) {
-    const base = Number(property?.Price) || 0;
+    const rawPrice = property?.Price;
+
+    if (typeof rawPrice === "number" && rawPrice > 0) return rawPrice;
+
+    if (typeof rawPrice === "string") {
+      const nums = rawPrice
+        .match(/\d+(?:[.,]\d+)?/g)
+        ?.map((x) => Number(String(x).replace(/,/g, "")))
+        .filter((n) => Number.isFinite(n) && n > 0);
+
+      if (nums && nums.length > 0) {
+        nums.sort((a, b) => a - b);
+        return nums[0];
+      }
+    }
+
+    const base = Number(rawPrice) || 0;
     if (base > 0) return base;
 
     const candidates = [];
